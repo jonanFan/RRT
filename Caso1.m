@@ -13,11 +13,11 @@
 
 
 (* ::Input:: *)
-(*<< "D:/Users/jontx/Desktop/Caso 1/RandomData.m"*)
+(*<< "D:\Users\jontx\Dropbox\Clase\2 Master\RRT\Caso 1\RandomData.m"*)
 
 
 (* ::Text:: *)
-(*El siguiente comando permite ver cuales son las funciones que incluye el fichero RandomData.m*)
+(*El siguiente comando permite ver cuales son las funciones que incluye el fichero RandomData.m *)
 
 
 (* ::Input:: *)
@@ -85,7 +85,7 @@
 (*mu=100;*)
 (*lamda=80;*)
 (*ro=lamda/mu;*)
-(*muestras=1000;*)
+(*muestras=10000;*)
 (*InterArrivalsTime=Table[RandomExp[lamda],muestras];*)
 
 
@@ -116,7 +116,7 @@
 
 
 (* ::Input:: *)
-(*ListStepPlot[{ArrivalsTime[[1;;5]], Departu[[1;;5]]}, AxesLabel->{Usuarios, Tiempo}]*)
+(*ListStepPlot[{ArrivalsTime[[1;;5]], Departu[[1;;5]]}, AxesLabel->{Usuarios, Tiempo}, PlotLegends->{"Arrivals","Departures"}]*)
 
 
 (* ::Text:: *)
@@ -134,12 +134,12 @@
 
 
 (* ::Input:: *)
-(*ListStepPlot[{PointStair[ArrivalsTime][[1;;5]], PointStair[Departu][[1;;5]]}, AxesLabel->{Tiempo, Usuarios}]*)
+(*ListStepPlot[{PointStair[ArrivalsTime][[1;;5]], PointStair[Departu][[1;;5]]}, AxesLabel->{Tiempo, Usuarios}, PlotLegends->{"Arrivals","Departures"}]*)
 (**)
 
 
 (* ::Input:: *)
-(*Manipulate[ListStepPlot[{PointStair[ArrivalsTime][[origin;;origin+width]],PointStair[Departu][[origin;;origin+width]]}, AxesLabel->{Tiempo, Usuarios}],{origin,1,1000-width,1},{width,10,If[muestras-origin> 0, muestras-origin, 10],1}]*)
+(*Manipulate[ListStepPlot[{PointStair[ArrivalsTime][[origin;;origin+width]],PointStair[Departu][[origin;;origin+width]]}, AxesLabel->{Tiempo, Usuarios}, PlotLegends->{"Arrivals","Departures"}],{origin,1,1000-width,1},{width,10,If[muestras-origin> 0, muestras-origin, 10],1}]*)
 
 
 (* ::Input:: *)
@@ -174,7 +174,7 @@
 
 
 (* ::Input:: *)
-(*curvaTeorica=Plot[1/(1-ro), {ro,0,1}, AxesOrigin->{0,0}, AxesLabel->{Ro, muEt[t]}];*)
+(*curvaTeorica=Plot[1/(1-ro), {ro,0,1}, AxesOrigin->{0,0}, AxesLabel->{Ro, muEt[t]}, PlotLegends->{"Teorica"}];*)
 
 
 (* ::Input:: *)
@@ -199,7 +199,7 @@
 
 
 (* ::Input:: *)
-(*curvaPractica=ListPlot[GetTiempoMedio[], AxesLabel->{Ro, muEt[t]}];*)
+(*curvaPractica=ListPlot[GetTiempoMedio[], {AxesLabel->{Ro, muEt[t]}, PlotLegends->{"Practica"}, PlotStyle->Red}];*)
 
 
 (* ::Text:: *)
@@ -288,7 +288,7 @@
 
 
 (* ::Input:: *)
-(*ListPlot[{probTeorica, probPractica, probPasta}]*)
+(*ListPlot[{probTeorica, probPractica, probPasta}, PlotLegends->{"Teorica","Practica", "PASTA"}]*)
 
 
 (* ::Subtitle:: *)
@@ -296,7 +296,7 @@
 
 
 (* ::Text:: *)
-(*7. Preparar las gr\[AAcute]ficas de rendimiento de colas vistas en Teor\[IAcute]a de la informaci\[OAcute]n para los casos espec\[IAcute]ficos que se elijan.Revisar la teor\[IAcute]a.*)
+(*7. Preparar las gr\[AAcute]ficas de rendimiento de colas vistas en Teor\[IAcute]a de la informaci\[OAcute]n para los casos espec\[IAcute]ficos que se elijan. Revisar la teor\[IAcute]a.*)
 
 
 (* ::Text:: *)
@@ -322,11 +322,11 @@
 
 
 (* ::Input:: *)
-(*ListStepPlot[{PointStair[ArrivalsTime][[1;;50]],PointStair[DepartuMM2][[1;;50]]}, AxesLabel->{Tiempo, Usuarios}]*)
+(*ListStepPlot[{PointStair[ArrivalsTime][[1;;50]],PointStair[DepartuMM2][[1;;50]]}, AxesLabel->{Tiempo, Usuarios}, PlotLegends->{"Arrivals","Departures"}]*)
 
 
 (* ::Input:: *)
-(*Manipulate[ListStepPlot[{PointStair[ArrivalsTime][[origin;;origin+width]],PointStair[DepartuMM2][[origin;;origin+width]]}, AxesLabel->{Tiempo, Usuarios}],{origin,1,1000-width,1},{width,10,If[muestras-origin> 0, muestras-origin, 10],1}]*)
+(*Manipulate[ListStepPlot[{PointStair[ArrivalsTime][[origin;;origin+width]],PointStair[DepartuMM2][[origin;;origin+width]]}, AxesLabel->{Tiempo, Usuarios}, PlotLegends->{"Arrivals","Departures"}],{origin,1,1000-width,1},{width,10,If[muestras-origin> 0, muestras-origin, 10],1}]*)
 
 
 (* ::Input:: *)
@@ -348,3 +348,16 @@
 
 (* ::Input:: *)
 (*Manipulate[ListLinePlot[usuariosMM2[[origin;;origin+width]]],{origin,1,Length[usuariosMM2]-width,1},{width,10,If[Length[usuariosMM2]-origin> 0, Length[usuariosMM2]-origin, 10],1}]*)
+
+
+(* ::Input:: *)
+(*probPracticaMM2=ProbEstadoPrac[usuariosMM2];*)
+
+
+(* ::Text:: *)
+(**)
+(*A continuaci\[OAcute]n, se puede observar el numero maximo de usuarios para una cola M/M/1 y una cola M/M/2. Tambien se puede observar como se reduce dr\[AAcute]sticamente el numero maximo en la cola M/M/2.*)
+
+
+(* ::Input:: *)
+(*Show[ListPlot[{probPractica, probPracticaMM2}, PlotRange->{{0.5,25.5},{0,0.55}}],ListLinePlot[{probPractica, probPracticaMM2}, {PlotLegends->{"M/M/1","M/M/2"}, PlotRange->{{0.5,25.5},{0,0.55}}}]]*)
