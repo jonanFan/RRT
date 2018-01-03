@@ -17,7 +17,7 @@
 
 Fuente::Fuente() {
     // TODO Auto-generated constructor stub
-    this->secuencia = 0;
+    this->id = 0;
     this->nuevoEvento = new cMessage();
 }
 
@@ -30,27 +30,44 @@ void Fuente::initialize() {
     this->startTime = par("startTime");
     this->lamda = par("lambda");
     scheduleAt(startTime, nuevoEvento);
+    txChannel = gate("out")->getTransmissionChannel();
 }
 
 void Fuente::handleMessage(cMessage* msg) {
 
+    simtime_t time;
     send(generarPaquete(), "out");
     try {
 
-        scheduleAt(simTime()+ exponential(lamda), nuevoEvento);
+        time = simTime() + exponential(lamda);
+        if (time >= txChannel->getTransmissionFinishTime())
+            scheduleAt(time, nuevoEvento);
+        else
+            scheduleAt(txChannel->getTransmissionFinishTime(), nuevoEvento);
+
     } catch (cException e) {
-        delete(msg);
+        delete (msg);
     }
 }
 
-Paquete* Fuente::generarPaquete() {
+cPacket* Fuente::generarPaquete() {
     char nombre[15];
     double tamPkt = par("tamPaquete");
-    sprintf(nombre, "msg-%d", secuencia);
-    Paquete* msg = new Paquete(nombre, 0);
-    msg->setSecuencia(secuencia++);
+    sprintf(nombre, "msg-%d", id++);
+    cPacket* msg = new cPacket(nombre, 0);
     msg->setBitLength(exponential(tamPkt));
-    msg->setTimestamp(simTime());
 
     return msg;
 }
+
+/*Paquete* Fuente::generarPaquete() {
+ char nombre[15];
+ double tamPkt = par("tamPaquete");
+ sprintf(nombre, "msg-%d", secuencia);
+ Paquete* msg = new Paquete(nombre, 0);
+ msg->setSecuencia(secuencia++);
+ msg->setBitLength(exponential(tamPkt));
+ msg->setTimestamp(simTime());
+
+ return msg;
+ }*/

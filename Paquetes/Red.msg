@@ -13,32 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef STOPWAIT_H_
-#define STOPWAIT_H_
-
-#include <omnetpp.h>
-#include "paquete_m.h"
-
-using namespace omnetpp;
-
-class StopWait: public cSimpleModule {
-private:
-     double    lenACK;
-     cDatarateChannel* txChannel;
-     cQueue*   txQueue;
-     cMessage* enviarMensajeEvento;
-     cMessage* timeoutEvento;
-     cMessage* setTimeoutEvento;
-     Paquete*  mensajeEnviado;
-protected:
-    virtual void handleMessage(cMessage* msg) override;
-    virtual void initialize() override;
-    void sendCopyOf(Paquete* paquete);
-public:
-    StopWait();
-    virtual ~StopWait();
-};
-
-Define_Module(StopWait);
-
-#endif /* STOPWAIT_H_ */
+//
+// TODO generated message class
+//
+packet Red {
+    unsigned short	srcAddr;
+    unsigned short	dstAddr;
+    unsigned int 	ttl;
+}

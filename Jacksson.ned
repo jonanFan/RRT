@@ -26,55 +26,22 @@ network Jacksson
             datarate = 1bps;
             per = 0.2;
             delay = 100s;
+            //packetLoss=0.5;
         }
 
     submodules:
-        Fuente1: Fuente {
+        Fuente: Fuente {
             @display("p=45,33");
-            lambda = 1000;
-            startTime = 20;
-            tamPaquete = 1024;
-        }
-        Fuente2: Fuente {
-            @display("p=44.6125,107.899994");
-            lambda = 1000;
-            startTime = 20;
-            tamPaquete = 1024;
-        }
-        Fuente3: Fuente {
-            @display("p=44.6125,182.59999");
-            lambda = 1000;
-            startTime = 20;
-            tamPaquete = 1024;
-        }
-        Fuente4: Fuente {
-            @display("p=44.6125,258.3375");
-            lambda = 1000;
-            startTime = 20;
-            tamPaquete = 1024;
-        }
-        Fuente5: Fuente {
-            @display("p=44.6125,258.3375");
             lambda = 1000;
             startTime = 20;
             tamPaquete = 1024;
         }
         Receptor: Receptor {
             @display("p=600.71246,148.3625");
-            probACKLoss = 0.3;
-            probPacketLoss = 0.3;
         }
-        Mux: Mux {
-            @display("p=285.3125,148.3625");
-        }
+
     connections:
-        Fuente1.out --> Mux.in++;
-        Fuente2.out --> Mux.in++;
-
-        Fuente3.out --> Mux.in++;
-
-        Fuente4.out --> Mux.in++;
-        Fuente5.out --> Mux.in++;
-
-        Mux.out <--> C <--> Receptor.receiver;
+        Fuente.out --> C --> Receptor.receiver;
 }
+
+

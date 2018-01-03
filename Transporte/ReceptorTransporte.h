@@ -13,36 +13,32 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef GBN_H_
-#define GBN_H_
+#ifndef ReceptorTransporte_H_
+#define ReceptorTransporte_H_
 
 #include <omnetpp.h>
-#include "paquete_m.h"
+#include "Paquetes/Transporte_m.h"
 
 using namespace omnetpp;
 
-class GBN: public cSimpleModule {
+class ReceptorTransporte: public cSimpleModule {
 private:
-     double    lenACK;
-     cDatarateChannel* txChannel;
-     cQueue*   txQueue;
-     cQueue*   ventanaGBN;
-     int       nEnviado;
-     int       tamVentana;
-     cMessage* enviarMensajeEvento;
-     cMessage* timeoutEvento;
-     cMessage* reenviarEvento;
-     int       reenviando;
+    cChannel* txChannel;
+    cQueue*   txQueue;
+    cMessage* enviarMensajeEvento;
+    double       probPacketLoss;
+    double       probAckLoss;
+    double       lenAck;
 protected:
     virtual void handleMessage(cMessage* msg) override;
     virtual void initialize() override;
-    void sendCopyOf(Paquete* paquete);
-    void resendWindow();
+    Transporte* generarPaquete(int error, unsigned int secuencia, simtime_t timestamp);
 public:
-    GBN();
-    virtual ~GBN();
+    ReceptorTransporte();
+    virtual ~ReceptorTransporte();
 };
 
-Define_Module(GBN);
+Define_Module(ReceptorTransporte);
 
-#endif /* GBN_H_ */
+
+#endif /* ReceptorTransporte_H_ */

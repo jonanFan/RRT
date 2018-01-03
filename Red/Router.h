@@ -17,7 +17,6 @@
 #define ROUTER_H_
 
 #include <omnetpp.h>
-#include "paquete_m.h"
 
 using namespace omnetpp;
 

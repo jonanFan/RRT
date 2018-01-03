@@ -31,16 +31,19 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
 OBJS = \
-    $O/Fuente.o \
-    $O/GBN.o \
-    $O/Mux.o \
-    $O/Receptor.o \
-    $O/StopWait.o \
-    $O/paquete_m.o
+    $O/Aplicacion/Fuente.o \
+    $O/Aplicacion/Receptor.o \
+    $O/Enlace/Canal.o \
+    $O/Red/Router.o \
+    $O/Transporte/Dummy.o \
+    $O/Transporte/ReceptorTransporte.o \
+    $O/Paquetes/Red_m.o \
+    $O/Paquetes/Transporte_m.o
 
 # Message files
 MSGFILES = \
-    paquete.msg
+    Paquetes/Red.msg \
+    Paquetes/Transporte.msg
 
 # SM files
 SMFILES =

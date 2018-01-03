@@ -13,43 +13,15 @@ simple Fuente
 simple Receptor
 {
     parameters:
-        double probACKLoss = default(0);
-        double probPacketLoss = default(0);
 		double lenACK= default(1);
 		
         @display("i=block/sink");
     gates:
-        inout receiver;
+        input receiver;
 }
 
-simple StopWait
-{      
-    parameters:
-        double lenACK= default(1);
-          
-    @display("i=block/queue");
-
-    gates:
-        input paquetes;
-        inout sender;
-}
-
-simple GBN
+channel Canal extends ned.DatarateChannel
 {
-    parameters:
-        int	tamVentana = default(8);
-        double lenACK= default(1);
-        
-    @display("i=block/queue");
-    gates:
-        input paquetes;
-        inout sender;
-}
-
-simple Mux
-{   
-    @display("i=block/queue");
-    gates:
-        input in[];
-        inout out;
+    @class(Canal);
+    double packetLoss = default(0);  
 }

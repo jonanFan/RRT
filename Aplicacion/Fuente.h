@@ -17,7 +17,6 @@
 #define FUENTE_H_
 
 #include <omnetpp.h>
-#include "paquete_m.h"
 
 using namespace omnetpp;
 
@@ -25,12 +24,13 @@ class Fuente: public cSimpleModule {
 private:
     simtime_t lamda;
     simtime_t startTime;
-    int       secuencia;
+    int       id;
     cMessage* nuevoEvento;
+    cChannel* txChannel;
 protected:
     virtual void handleMessage(cMessage* msg) override;
     virtual void initialize() override;
-    Paquete* generarPaquete();
+    cPacket* generarPaquete();
 public:
     Fuente();
     virtual ~Fuente();
