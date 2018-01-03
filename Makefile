@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for Caso3
+# OMNeT++/OMNEST Makefile for Caso0
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep -O out -I.
 #
 
 # Name of target to be created (-o option)
-TARGET = Caso3$(D)$(EXE_SUFFIX)
+TARGET = Caso0$(D)$(EXE_SUFFIX)
 TARGET_DIR = .
 
 # User interface (uncomment one) (-u option)
@@ -30,7 +30,13 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/Fuente.o $O/GBN.o $O/Receptor.o $O/StopWait.o $O/paquete_m.o
+OBJS = \
+    $O/Fuente.o \
+    $O/GBN.o \
+    $O/Mux.o \
+    $O/Receptor.o \
+    $O/StopWait.o \
+    $O/paquete_m.o
 
 # Message files
 MSGFILES = \

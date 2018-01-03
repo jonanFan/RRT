@@ -45,6 +45,5 @@ StopWaitProt
         }
     connections:
         Fuente.out --> SWProt.paquetes;
-        Receptor.out --> C --> SWProt.in;
-        SWProt.out --> C --> Receptor.in;
+        SWProt.sender <--> C <--> Receptor.receiver;        
 }

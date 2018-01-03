@@ -34,7 +34,7 @@ Receptor::~Receptor() {
 }
 
 void Receptor::initialize() {
-    txChannel = gate("out")->getTransmissionChannel();
+    txChannel = gate("receiver$o")->getTransmissionChannel();
     txQueue = new cQueue();
     this->probAckLoss = par("probACKLoss");
     this->probPacketLoss = par("probPacketLoss");
@@ -47,7 +47,7 @@ void Receptor::handleMessage(cMessage *msg) {
     if (msg == enviarMensajeEvento) {
         pkt = (Paquete*) txQueue->pop();
         if (uniform(0, 1) >= probAckLoss) {
-            send(pkt, "out");
+            send(pkt, "receiver$o");
             //EV << "RECEPTOR: SACO DE LA COLA";
             if (!txQueue->isEmpty()) {
                 scheduleAt(txChannel->getTransmissionFinishTime(),

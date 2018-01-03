@@ -44,6 +44,5 @@ network GBNProt
         }
     connections:
         Fuente.out --> GBNProt.paquetes;
-        Receptor.out --> C --> GBNProt.in;
-        GBNProt.out --> C --> Receptor.in;
+        GBNProt.sender <--> C <--> Receptor.receiver;
 }

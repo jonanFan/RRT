@@ -37,7 +37,7 @@ StopWait::~StopWait() {
 }
 
 void StopWait::initialize() {
-    txChannel = (cDatarateChannel*)gate("out")->getTransmissionChannel();
+    txChannel = (cDatarateChannel*)gate("sender$o")->getTransmissionChannel();
     txQueue = new cQueue();
     lenACK=par("lenACK");
 }
@@ -51,7 +51,7 @@ void StopWait::handleMessage(cMessage* msg) {
         mensajeEnviado = paquete->dup();
 
         EV << "ENVIANDO MENSAJE " << mensajeEnviado->getName();
-        send(paquete, "out");
+        send(paquete, "sender$o");
 
         scheduleAt(txChannel->getTransmissionFinishTime(),
                             setTimeoutEvento);
@@ -64,7 +64,7 @@ void StopWait::handleMessage(cMessage* msg) {
         if (simTime() >= txChannel->getTransmissionFinishTime()) {
             EV << "SALTA EL TIMEOUT DEL PAQUETE: " << mensajeEnviado->getName();
             mensajeEnviado->setTimestamp(simTime());
-            send(mensajeEnviado->dup(), "out");
+            send(mensajeEnviado->dup(), "sender$o");
             scheduleAt(txChannel->getTransmissionFinishTime(),
                     setTimeoutEvento);
 
@@ -85,7 +85,7 @@ void StopWait::handleMessage(cMessage* msg) {
 
             sendCopyOf(paquete);
 
-        } else if (msg->arrivedOn("in")) {
+        } else if (msg->arrivedOn("sender$i")) {
 
             if (mensajeEnviado->getTimestamp() == paquete->getTimestamp()
                     && mensajeEnviado->getSecuencia()
@@ -99,7 +99,7 @@ void StopWait::handleMessage(cMessage* msg) {
                     EV << "ACK/NACK CON ERROR NECESITO REENVIAR: "
                               << mensajeEnviado->getName();
                     mensajeEnviado->setTimestamp(simTime());
-                    send(mensajeEnviado->dup(), "out");
+                    send(mensajeEnviado->dup(), "sender$o");
                     scheduleAt(txChannel->getTransmissionFinishTime(),
                             setTimeoutEvento);
 

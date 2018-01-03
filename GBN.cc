@@ -42,7 +42,7 @@ GBN::~GBN() {
 }
 
 void GBN::initialize() {
-    txChannel = (cDatarateChannel*) gate("out")->getTransmissionChannel();
+    txChannel = (cDatarateChannel*) gate("sender$o")->getTransmissionChannel();
     txQueue = new cQueue();
     ventanaGBN = new cQueue();
     tamVentana = par("tamVentana");
@@ -69,7 +69,7 @@ void GBN::handleMessage(cMessage* msg) {
 
         paquete->setTimestamp(simTime());
         paquete->setAck(-1);
-        send(paquete->dup(), "out");
+        send(paquete->dup(), "sender$o");
         paquete->setTxFinish(txChannel->getTransmissionFinishTime());
 
         if (ventanaGBN->getLength() == 0) {
@@ -120,7 +120,7 @@ void GBN::handleMessage(cMessage* msg) {
         {
             paquete->setTimestamp(simTime());
             paquete->setAck(-1);
-            send(paquete->dup(), "out");
+            send(paquete->dup(), "sender$o");
             paquete->setTxFinish(txChannel->getTransmissionFinishTime());
 
             if (i < ventanaGBN->getLength() - 1) { //SI NO ES EL ULTIMO PAQUETE REENVIAR EL SIGUIENTE
@@ -152,7 +152,7 @@ void GBN::handleMessage(cMessage* msg) {
         if (msg->arrivedOn("paquetes")) { //PAQUETES DE LA FUENTE
             sendCopyOf(paquete);
 
-        } else if (msg->arrivedOn("in")) { //PAQUETE DEL RECEPTOR
+        } else if (msg->arrivedOn("sender$i")) { //PAQUETE DEL RECEPTOR
 
             Paquete* almacenado = NULL;
             int i = 0;

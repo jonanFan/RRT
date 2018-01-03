@@ -13,15 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-//
-// TODO generated message class
-//
-packet Paquete {
-    unsigned short	srcAddr;
-    unsigned short	dstAddr;
-    unsigned int 	ttl;
-    unsigned int secuencia;
-    short ack=-1; //0: NACK, 1:ACK
-    simtime_t 	timestamp;
-    simtime_t	txFinish;
+#include "Router.h"
+
+Router::Router() {
+    // TODO Auto-generated constructor stub
+
+}
+
+Router::~Router() {
+    // TODO Auto-generated destructor stub
+}
+
+void Router::initialize() {
+    EV << "EL GATE ES" << gateSize("in");
+
+}
+
+void Router::handleMessage(cMessage* msg) {
+
 }

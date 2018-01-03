@@ -19,8 +19,7 @@ simple Receptor
 		
         @display("i=block/sink");
     gates:
-        input in;
-        output out;
+        inout receiver;
 }
 
 simple StopWait
@@ -32,8 +31,7 @@ simple StopWait
 
     gates:
         input paquetes;
-        input in;
-        output out;
+        inout sender;
 }
 
 simple GBN
@@ -45,6 +43,13 @@ simple GBN
     @display("i=block/queue");
     gates:
         input paquetes;
-        input in;
-        output out;
+        inout sender;
+}
+
+simple Mux
+{   
+    @display("i=block/queue");
+    gates:
+        input in[];
+        inout out;
 }

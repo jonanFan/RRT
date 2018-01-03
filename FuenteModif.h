@@ -13,15 +13,29 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-//
-// TODO generated message class
-//
-packet Paquete {
-    unsigned short	srcAddr;
-    unsigned short	dstAddr;
-    unsigned int 	ttl;
-    unsigned int secuencia;
-    short ack=-1; //0: NACK, 1:ACK
-    simtime_t 	timestamp;
-    simtime_t	txFinish;
-}
+#ifndef FuenteModif_H_
+#define FuenteModif_H_
+
+#include <omnetpp.h>
+#include "paquete_m.h"
+
+using namespace omnetpp;
+
+class FuenteModif: public cSimpleModule {
+private:
+    simtime_t lamda;
+    simtime_t startTime;
+    int       secuencia;
+    cMessage* nuevoEvento;
+protected:
+    virtual void handleMessage(cMessage* msg) override;
+    virtual void initialize() override;
+    Paquete* generarPaquete();
+public:
+    FuenteModif();
+    virtual ~FuenteModif();
+};
+
+Define_Module(FuenteModif);
+
+#endif /* FuenteModif_H_ */

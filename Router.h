@@ -13,15 +13,23 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-//
-// TODO generated message class
-//
-packet Paquete {
-    unsigned short	srcAddr;
-    unsigned short	dstAddr;
-    unsigned int 	ttl;
-    unsigned int secuencia;
-    short ack=-1; //0: NACK, 1:ACK
-    simtime_t 	timestamp;
-    simtime_t	txFinish;
-}
+#ifndef ROUTER_H_
+#define ROUTER_H_
+
+#include <omnetpp.h>
+#include "paquete_m.h"
+
+using namespace omnetpp;
+
+class Router: public cSimpleModule{
+private:
+    void initialize();
+    void handleMessage(cMessage* msg);
+public:
+    Router();
+    virtual ~Router();
+};
+
+Define_Module(Router);
+
+#endif /* ROUTER_H_ */
