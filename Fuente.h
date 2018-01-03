@@ -27,6 +27,7 @@ private:
     simtime_t startTime;
     int       secuencia;
     cMessage* nuevoEvento;
+	cChannel* txChannel;
 protected:
     virtual void handleMessage(cMessage* msg) override;
     virtual void initialize() override;

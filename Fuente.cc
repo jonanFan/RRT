@@ -30,14 +30,20 @@ void Fuente::initialize() {
     this->startTime = par("startTime");
     this->lamda = par("lambda");
     scheduleAt(startTime, nuevoEvento);
+	txChannel = gate("out")->getTransmissionChannel();
 }
 
 void Fuente::handleMessage(cMessage* msg) {
 
+	simtime_t time;
     send(generarPaquete(), "out");
     try {
 
-        scheduleAt(simTime()+ exponential(lamda), nuevoEvento);
+		time = simTime() + exponential(lamda);
+        if (time >= txChannel->getTransmissionFinishTime())
+            scheduleAt(time, nuevoEvento);
+        else
+            scheduleAt(txChannel->getTransmissionFinishTime(), nuevoEvento);
     } catch (cException e) {
         delete(msg);
     }
