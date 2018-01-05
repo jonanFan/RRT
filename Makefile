@@ -35,8 +35,8 @@ OBJS = \
     $O/Aplicacion/Receptor.o \
     $O/Enlace/Canal.o \
     $O/Red/Router.o \
-    $O/Transporte/Dummy.o \
     $O/Transporte/ReceptorTransporte.o \
+    $O/Transporte/TransmisorDummy.o \
     $O/Paquetes/Red_m.o \
     $O/Paquetes/Transporte_m.o
 

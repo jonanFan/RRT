@@ -21,27 +21,42 @@ network Jacksson
         @display("bgb=833.1125,349.63748");
 
     types:
-        channel C extends ned.DatarateChannel
+        channel C extends Canal
         {
             datarate = 1bps;
             per = 0.2;
             delay = 100s;
-            //packetLoss=0.5;
+            packetLoss = 0.5;
         }
 
     submodules:
         Fuente: Fuente {
-            @display("p=45,33");
+            @display("p=71.145,136.0125");
             lambda = 1000;
             startTime = 20;
             tamPaquete = 1024;
         }
         Receptor: Receptor {
-            @display("p=600.71246,148.3625");
+            @display("p=652.86,136.0125");
         }
 
+        TransmisorDummy: TransmisorDummy {
+            @display("p=277.25626,136.0125");
+            header_tam = 10;
+            puerto = 0;
+            dstPuerto = 1;
+        }
+
+        ReceptorTransporte: ReceptorTransporte {
+            @display("p=474.9975,136.0125");
+            puerto = 1;
+        }
+
+
     connections:
-        Fuente.out --> C --> Receptor.receiver;
+        Fuente.down_layer --> TransmisorDummy.up_layer;
+        TransmisorDummy.down_layer <--> ReceptorTransporte.down_layer;
+        ReceptorTransporte.up_layer --> Receptor.down_layer;
 }
 
 

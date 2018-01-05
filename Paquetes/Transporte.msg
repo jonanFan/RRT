@@ -17,9 +17,10 @@
 // TODO generated message class
 //
 packet Transporte {
+    unsigned int srcPort;
+    unsigned int dstPort;
     unsigned int secuencia;
     short 		 ack=-1; //0: NACK, 1:ACK
     simtime_t 	 timestamp;
     simtime_t	 txFinish;
-    unsigned int protocolo;
 }

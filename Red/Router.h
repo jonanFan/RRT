@@ -17,13 +17,55 @@
 #define ROUTER_H_
 
 #include <omnetpp.h>
+#include <omnetpp/cxmlelement.h>
+#include "Paquetes/Red_m.h"
+
 
 using namespace omnetpp;
 
-class Router: public cSimpleModule{
+const short max_gates = 10;
+
+class Router: public cSimpleModule {
 private:
+
+    const short max_net = 99;
+    const short min_net = 0;
+
+    struct output {
+        short gate;
+        double prob;
+    };
+
+    struct route {
+        int start;
+        int stop;
+        int n_gates;
+        output * gates;
+    };
+
+    int down_inc;
+    int down_outc;
+    int up_inc;
+    int up_outc;
+    bool down_in[max_gates];
+    bool down_out[max_gates];
+    bool up_in[max_gates];
+    bool up_out[max_gates];
+    route* routes;
+    int n_routes;
+
+    unsigned int direccion;
+    unsigned int destino;
+    int header_tam;
+    int ttl;
+
+    cXMLElement* xml;
+protected:
     void initialize();
     void handleMessage(cMessage* msg);
+    int config(cXMLElement *xml);
+    void rutar(Red* red);
+    void send_up(Red* red);
 public:
     Router();
     virtual ~Router();

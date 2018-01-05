@@ -23,16 +23,12 @@ using namespace omnetpp;
 
 class ReceptorTransporte: public cSimpleModule {
 private:
-    cChannel* txChannel;
-    cQueue*   txQueue;
-    cMessage* enviarMensajeEvento;
-    double       probPacketLoss;
-    double       probAckLoss;
-    double       lenAck;
+    int          puerto;
+    int       lenAck;
 protected:
     virtual void handleMessage(cMessage* msg) override;
     virtual void initialize() override;
-    Transporte* generarPaquete(int error, unsigned int secuencia, simtime_t timestamp);
+    Transporte* generarRespuesta(Transporte* peticion);
 public:
     ReceptorTransporte();
     virtual ~ReceptorTransporte();

@@ -30,20 +30,14 @@ void Fuente::initialize() {
     this->startTime = par("startTime");
     this->lamda = par("lambda");
     scheduleAt(startTime, nuevoEvento);
-    txChannel = gate("out")->getTransmissionChannel();
 }
 
 void Fuente::handleMessage(cMessage* msg) {
 
     simtime_t time;
-    send(generarPaquete(), "out");
+    send(generarPaquete(), "down_layer");
     try {
-
-        time = simTime() + exponential(lamda);
-        if (time >= txChannel->getTransmissionFinishTime())
-            scheduleAt(time, nuevoEvento);
-        else
-            scheduleAt(txChannel->getTransmissionFinishTime(), nuevoEvento);
+            scheduleAt(simTime() + exponential(lamda), nuevoEvento);
 
     } catch (cException e) {
         delete (msg);
@@ -51,23 +45,13 @@ void Fuente::handleMessage(cMessage* msg) {
 }
 
 cPacket* Fuente::generarPaquete() {
+
     char nombre[15];
     double tamPkt = par("tamPaquete");
-    sprintf(nombre, "msg-%d", id++);
+    sprintf(nombre, "App-%d", id++);
     cPacket* msg = new cPacket(nombre, 0);
     msg->setBitLength(exponential(tamPkt));
 
     return msg;
 }
 
-/*Paquete* Fuente::generarPaquete() {
- char nombre[15];
- double tamPkt = par("tamPaquete");
- sprintf(nombre, "msg-%d", secuencia);
- Paquete* msg = new Paquete(nombre, 0);
- msg->setSecuencia(secuencia++);
- msg->setBitLength(exponential(tamPkt));
- msg->setTimestamp(simTime());
-
- return msg;
- }*/

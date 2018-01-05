@@ -26,22 +26,24 @@
  * //
  * packet Transporte
  * {
+ *     unsigned int srcPort;
+ *     unsigned int dstPort;
  *     unsigned int secuencia;
  *     short ack = -1; //0: NACK, 1:ACK
  *     simtime_t timestamp;
  *     simtime_t txFinish;
- *     unsigned int protocolo;
  * }
  * </pre>
  */
 class Transporte : public ::omnetpp::cPacket
 {
   protected:
+    unsigned int srcPort;
+    unsigned int dstPort;
     unsigned int secuencia;
     short ack;
     ::omnetpp::simtime_t timestamp;
     ::omnetpp::simtime_t txFinish;
-    unsigned int protocolo;
 
   private:
     void copy(const Transporte& other);
@@ -60,6 +62,10 @@ class Transporte : public ::omnetpp::cPacket
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
+    virtual unsigned int getSrcPort() const;
+    virtual void setSrcPort(unsigned int srcPort);
+    virtual unsigned int getDstPort() const;
+    virtual void setDstPort(unsigned int dstPort);
     virtual unsigned int getSecuencia() const;
     virtual void setSecuencia(unsigned int secuencia);
     virtual short getAck() const;
@@ -68,8 +74,6 @@ class Transporte : public ::omnetpp::cPacket
     virtual void setTimestamp(::omnetpp::simtime_t timestamp);
     virtual ::omnetpp::simtime_t getTxFinish() const;
     virtual void setTxFinish(::omnetpp::simtime_t txFinish);
-    virtual unsigned int getProtocolo() const;
-    virtual void setProtocolo(unsigned int protocolo);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const Transporte& obj) {obj.parsimPack(b);}

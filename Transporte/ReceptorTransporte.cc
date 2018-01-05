@@ -14,83 +14,49 @@
 // 
 
 #include "ReceptorTransporte.h"
+#include <string.h>
+#include <stdio.h>
 
 ReceptorTransporte::ReceptorTransporte() {
     // TODO Auto-generated constructor stub
-    txQueue = NULL;
-    this->enviarMensajeEvento = new cMessage();
-    this->probAckLoss = 0;
-    this->probPacketLoss = 0;
-    this->lenAck = 0;
+    lenAck = 0;
+    puerto = 0;
 }
 
 ReceptorTransporte::~ReceptorTransporte() {
     // TODO Auto-generated destructor stub
-    if (txQueue != NULL)
-        txQueue->~cQueue();
-
-    cancelAndDelete(enviarMensajeEvento);
-
 }
 
 void ReceptorTransporte::initialize() {
-    txChannel = gate("receiver$o")->getTransmissionChannel();
-    txQueue = new cQueue();
-    this->probAckLoss = par("probACKLoss");
-    this->probPacketLoss = par("probPacketLoss");
-    this->lenAck = par("lenACK");
+    lenAck = par("lenACK");
+    puerto = par("puerto");
 }
 
 void ReceptorTransporte::handleMessage(cMessage *msg) {
-    Transporte* pkt = NULL;
+    Transporte* peticion = check_and_cast<Transporte *>(msg);
 
-    if (msg == enviarMensajeEvento) {
-        pkt = (Transporte*) txQueue->pop();
-        if (uniform(0, 1) >= probAckLoss) {
-            send(pkt, "receiver$o");
-            //EV << "ReceptorTransporte: SACO DE LA COLA";
-            if (!txQueue->isEmpty()) {
-                scheduleAt(txChannel->getTransmissionFinishTime(),
-                        enviarMensajeEvento);
-            }
-        } else {
-            EV << "ReceptorTransporte: "<< pkt->getName() << " PERDIDO\n";
+    char *nombre=(char*)peticion->getName();
 
-            if (!txQueue->isEmpty()) {
-                scheduleAt(simTime(), enviarMensajeEvento);
-            }
+    if ((strncmp(nombre, "NACK", 4) != 0 || strncmp(nombre, "ACK", 3) != 0) && peticion->getDstPort() == puerto)
+    {
+        Transporte* respuesta = generarRespuesta(peticion);
 
-            delete(pkt);
-        }
-    } else {
-        pkt = check_and_cast<Transporte *>(msg);
-
-        if (uniform(0, 1) >= probPacketLoss) {
-            Transporte* Transporte = generarPaquete(pkt->hasBitError() ? 1 : 0,
-                    pkt->getSecuencia(), pkt->getTimestamp());
-            if (txQueue->isEmpty()) {
-                simtime_t timer = 0;
-
-                if (simTime() >= txChannel->getTransmissionFinishTime())
-                    timer = simTime();
-                else
-                    timer = txChannel->getTransmissionFinishTime();
-                scheduleAt(timer, enviarMensajeEvento);
-            }
-            //EV << "\nReceptorTransporte: INSERTO EN COLA\n";
-            txQueue->insert(Transporte);
-        } else {
-            EV << "ReceptorTransporte: "<< pkt->getName() << " PERDIDO\n";
+        if(respuesta->getAck()==1)
+        {
+            send(peticion->decapsulate(), "up_layer");
         }
 
-        delete (pkt);
+        send(respuesta, "down_layer$o");
     }
+
+    delete (peticion);
 }
 
-Transporte* ReceptorTransporte::generarPaquete(int error, unsigned int secuencia, simtime_t timestamp) {
+Transporte* ReceptorTransporte::generarRespuesta(Transporte* peticion) {
     char nombre[15];
+    unsigned int secuencia=peticion->getSecuencia();
 
-    if (error == 1) {
+    if (peticion->hasBitError()) {
         sprintf(nombre, "NACK-%d", secuencia);
         EV << "ReceptorTransporte: ENVIANDO NACK-" << secuencia << "\n";
     } else {
@@ -99,10 +65,12 @@ Transporte* ReceptorTransporte::generarPaquete(int error, unsigned int secuencia
     }
 
     Transporte* msg = new Transporte(nombre, 0);
-    msg->setAck(!error);
+    msg->setAck(!peticion->hasBitError());
     msg->setSecuencia(secuencia);
     msg->setBitLength(lenAck);
-    msg->setTimestamp(timestamp);
+    msg->setTimestamp(peticion->getTimestamp());
+    msg->setSrcPort(puerto);
+    msg->setDstPort(peticion->getSrcPort());
 
     return msg;
 }

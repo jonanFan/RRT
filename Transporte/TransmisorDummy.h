@@ -13,22 +13,27 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef Dummy_H_
-#define Dummy_H_
+#ifndef TransmisorDummy_H_
+#define TransmisorDummy_H_
 
 #include <omnetpp.h>
 
 using namespace omnetpp;
 
-class Dummy: public cSimpleModule{
+class TransmisorDummy: public cSimpleModule{
 private:
+    unsigned int puerto;
+    unsigned int dstPuerto;
+    unsigned int secuencia;
+    unsigned int header_tam;
+protected:
     void initialize();
     void handleMessage(cMessage* msg);
 public:
-    Dummy();
-    virtual ~Dummy();
+    TransmisorDummy();
+    virtual ~TransmisorDummy();
 };
 
-Define_Module(Dummy);
+Define_Module(TransmisorDummy);
 
-#endif /* Dummy_H_ */
+#endif /* TransmisorDummy_H_ */

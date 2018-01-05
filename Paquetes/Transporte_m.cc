@@ -181,11 +181,12 @@ Register_Class(Transporte)
 
 Transporte::Transporte(const char *name, short kind) : ::omnetpp::cPacket(name,kind)
 {
+    this->srcPort = 0;
+    this->dstPort = 0;
     this->secuencia = 0;
     this->ack = -1;
     this->timestamp = 0;
     this->txFinish = 0;
-    this->protocolo = 0;
 }
 
 Transporte::Transporte(const Transporte& other) : ::omnetpp::cPacket(other)
@@ -207,31 +208,54 @@ Transporte& Transporte::operator=(const Transporte& other)
 
 void Transporte::copy(const Transporte& other)
 {
+    this->srcPort = other.srcPort;
+    this->dstPort = other.dstPort;
     this->secuencia = other.secuencia;
     this->ack = other.ack;
     this->timestamp = other.timestamp;
     this->txFinish = other.txFinish;
-    this->protocolo = other.protocolo;
 }
 
 void Transporte::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->srcPort);
+    doParsimPacking(b,this->dstPort);
     doParsimPacking(b,this->secuencia);
     doParsimPacking(b,this->ack);
     doParsimPacking(b,this->timestamp);
     doParsimPacking(b,this->txFinish);
-    doParsimPacking(b,this->protocolo);
 }
 
 void Transporte::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->srcPort);
+    doParsimUnpacking(b,this->dstPort);
     doParsimUnpacking(b,this->secuencia);
     doParsimUnpacking(b,this->ack);
     doParsimUnpacking(b,this->timestamp);
     doParsimUnpacking(b,this->txFinish);
-    doParsimUnpacking(b,this->protocolo);
+}
+
+unsigned int Transporte::getSrcPort() const
+{
+    return this->srcPort;
+}
+
+void Transporte::setSrcPort(unsigned int srcPort)
+{
+    this->srcPort = srcPort;
+}
+
+unsigned int Transporte::getDstPort() const
+{
+    return this->dstPort;
+}
+
+void Transporte::setDstPort(unsigned int dstPort)
+{
+    this->dstPort = dstPort;
 }
 
 unsigned int Transporte::getSecuencia() const
@@ -272,16 +296,6 @@ void Transporte::setTimestamp(::omnetpp::simtime_t timestamp)
 void Transporte::setTxFinish(::omnetpp::simtime_t txFinish)
 {
     this->txFinish = txFinish;
-}
-
-unsigned int Transporte::getProtocolo() const
-{
-    return this->protocolo;
-}
-
-void Transporte::setProtocolo(unsigned int protocolo)
-{
-    this->protocolo = protocolo;
 }
 
 class TransporteDescriptor : public omnetpp::cClassDescriptor
@@ -349,7 +363,7 @@ const char *TransporteDescriptor::getProperty(const char *propertyname) const
 int TransporteDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 5+basedesc->getFieldCount() : 5;
+    return basedesc ? 6+basedesc->getFieldCount() : 6;
 }
 
 unsigned int TransporteDescriptor::getFieldTypeFlags(int field) const
@@ -366,8 +380,9 @@ unsigned int TransporteDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<6) ? fieldTypeFlags[field] : 0;
 }
 
 const char *TransporteDescriptor::getFieldName(int field) const
@@ -379,24 +394,26 @@ const char *TransporteDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
+        "srcPort",
+        "dstPort",
         "secuencia",
         "ack",
         "timestamp",
         "txFinish",
-        "protocolo",
     };
-    return (field>=0 && field<5) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<6) ? fieldNames[field] : nullptr;
 }
 
 int TransporteDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0]=='s' && strcmp(fieldName, "secuencia")==0) return base+0;
-    if (fieldName[0]=='a' && strcmp(fieldName, "ack")==0) return base+1;
-    if (fieldName[0]=='t' && strcmp(fieldName, "timestamp")==0) return base+2;
-    if (fieldName[0]=='t' && strcmp(fieldName, "txFinish")==0) return base+3;
-    if (fieldName[0]=='p' && strcmp(fieldName, "protocolo")==0) return base+4;
+    if (fieldName[0]=='s' && strcmp(fieldName, "srcPort")==0) return base+0;
+    if (fieldName[0]=='d' && strcmp(fieldName, "dstPort")==0) return base+1;
+    if (fieldName[0]=='s' && strcmp(fieldName, "secuencia")==0) return base+2;
+    if (fieldName[0]=='a' && strcmp(fieldName, "ack")==0) return base+3;
+    if (fieldName[0]=='t' && strcmp(fieldName, "timestamp")==0) return base+4;
+    if (fieldName[0]=='t' && strcmp(fieldName, "txFinish")==0) return base+5;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -410,12 +427,13 @@ const char *TransporteDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "unsigned int",
+        "unsigned int",
+        "unsigned int",
         "short",
         "simtime_t",
         "simtime_t",
-        "unsigned int",
     };
-    return (field>=0 && field<5) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<6) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **TransporteDescriptor::getFieldPropertyNames(int field) const
@@ -482,11 +500,12 @@ std::string TransporteDescriptor::getFieldValueAsString(void *object, int field,
     }
     Transporte *pp = (Transporte *)object; (void)pp;
     switch (field) {
-        case 0: return ulong2string(pp->getSecuencia());
-        case 1: return long2string(pp->getAck());
-        case 2: return simtime2string(pp->getTimestamp());
-        case 3: return simtime2string(pp->getTxFinish());
-        case 4: return ulong2string(pp->getProtocolo());
+        case 0: return ulong2string(pp->getSrcPort());
+        case 1: return ulong2string(pp->getDstPort());
+        case 2: return ulong2string(pp->getSecuencia());
+        case 3: return long2string(pp->getAck());
+        case 4: return simtime2string(pp->getTimestamp());
+        case 5: return simtime2string(pp->getTxFinish());
         default: return "";
     }
 }
@@ -501,11 +520,12 @@ bool TransporteDescriptor::setFieldValueAsString(void *object, int field, int i,
     }
     Transporte *pp = (Transporte *)object; (void)pp;
     switch (field) {
-        case 0: pp->setSecuencia(string2ulong(value)); return true;
-        case 1: pp->setAck(string2long(value)); return true;
-        case 2: pp->setTimestamp(string2simtime(value)); return true;
-        case 3: pp->setTxFinish(string2simtime(value)); return true;
-        case 4: pp->setProtocolo(string2ulong(value)); return true;
+        case 0: pp->setSrcPort(string2ulong(value)); return true;
+        case 1: pp->setDstPort(string2ulong(value)); return true;
+        case 2: pp->setSecuencia(string2ulong(value)); return true;
+        case 3: pp->setAck(string2long(value)); return true;
+        case 4: pp->setTimestamp(string2simtime(value)); return true;
+        case 5: pp->setTxFinish(string2simtime(value)); return true;
         default: return false;
     }
 }

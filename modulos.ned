@@ -7,17 +7,39 @@ simple Fuente
 
         @display("i=block/source");
     gates:
-        output out;
+        output down_layer;
 }
 
 simple Receptor
-{
-    parameters:
-		double lenACK= default(1);
-		
+{				
         @display("i=block/sink");
     gates:
-        input receiver;
+        input down_layer;
+}
+
+simple ReceptorTransporte
+{
+    parameters:
+        int lenACK= default(1);
+		int puerto=default(0);
+		
+        @display("i=block/transport");
+    gates:
+        output up_layer;
+        inout down_layer;
+}
+
+simple TransmisorDummy
+{
+    parameters:
+		int header_tam= default(10);
+		int puerto=default(0);
+		int dstPuerto=default(0);
+		
+        @display("i=block/transport");
+    gates:
+        input up_layer;
+        inout down_layer;
 }
 
 channel Canal extends ned.DatarateChannel
