@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE routes SYSTEM "Route.dtd" > 
+
+<routes>
+	<route start="1" stop="99">
+		<gateway id="2" prob="0.5"/>
+		<gateway id="1" prob="0.5"/>
+	</route>
+</routes>
+
+
+<!--
+<routes>
+	<route start="1" stop="49">
+		<gateway id="0"/>
+	</route>
+	<route stop="99">
+		<gateway id="0" prob="0.5"/>
+		<gateway id="1" prob="0.5"/>
+	</route>
+</routes>
+-->

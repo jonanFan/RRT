@@ -1,0 +1,6 @@
+-Definir una manera con la que avisar a la capa de transporte el transmision finish time, para poder reenviar (una opcion es modificar el interlayer para que meta algun tipo)
+-Probar con varios routers
+-Probar que ocurre cuando hay error en los paquetes
+-Adaptar Stop&Wait
+-Adaptar GBN
+-Mirar como hacer estadisticos

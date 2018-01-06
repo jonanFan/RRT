@@ -14,6 +14,7 @@
 // 
 
 #include "ReceptorTransporte.h"
+#include "Paquetes/InterTransporteRed_m.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -30,31 +31,44 @@ ReceptorTransporte::~ReceptorTransporte() {
 void ReceptorTransporte::initialize() {
     lenAck = par("lenACK");
     puerto = par("puerto");
+
+    if (puerto >= max_gates) {
+        EV << "Puerto maximo excedido\n";
+        endSimulation();
+    }
 }
 
 void ReceptorTransporte::handleMessage(cMessage *msg) {
-    Transporte* peticion = check_and_cast<Transporte *>(msg);
 
-    char *nombre=(char*)peticion->getName();
+    InterTransporteRed*  itrPeticion=check_and_cast<InterTransporteRed *>(msg);
+    Transporte* peticion = check_and_cast<Transporte *>(itrPeticion->decapsulate());
 
-    if ((strncmp(nombre, "NACK", 4) != 0 || strncmp(nombre, "ACK", 3) != 0) && peticion->getDstPort() == puerto)
-    {
+    char *nombre = (char*) peticion->getName();
+
+    if ((strncmp(nombre, "NACK", 4) != 0 || strncmp(nombre, "ACK", 3) != 0)
+            && peticion->getDstPort() == puerto) {
+
         Transporte* respuesta = generarRespuesta(peticion);
 
-        if(respuesta->getAck()==1)
-        {
+        InterTransporteRed*  itrRespuesta=new InterTransporteRed(respuesta->getName());
+        itrRespuesta->setOrigen(itrPeticion->getOrigen());
+        itrRespuesta->setDestino(itrPeticion->getDestino());
+        itrRespuesta->encapsulate(respuesta);
+
+        if (respuesta->getAck() == 1) {
             send(peticion->decapsulate(), "up_layer");
         }
 
-        send(respuesta, "down_layer$o");
+        send(itrRespuesta, "down_layer$o");
     }
 
     delete (peticion);
+    delete (itrPeticion);
 }
 
 Transporte* ReceptorTransporte::generarRespuesta(Transporte* peticion) {
     char nombre[15];
-    unsigned int secuencia=peticion->getSecuencia();
+    unsigned int secuencia = peticion->getSecuencia();
 
     if (peticion->hasBitError()) {
         sprintf(nombre, "NACK-%d", secuencia);

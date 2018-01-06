@@ -15,6 +15,7 @@
 
 #include "Router.h"
 #include "Paquetes/Transporte_m.h"
+#include "Paquetes/InterTransporteRed_m.h"
 
 Router::Router() {
     // TODO Auto-generated constructor stub
@@ -23,103 +24,156 @@ Router::Router() {
     header_tam = 0;
     direccion = 0;
     destino = 0;
-    down_inc = 0;
-    down_outc = 0;
-    up_inc = 0;
-    up_outc = 0;
+
     ttl = 0;
 }
 
 Router::~Router() {
     // TODO Auto-generated destructor stub
     delete[] routes;
+    for (int i = 0; i < max_gates; i++) {
+        if (down_gates[i].txQueue != nullptr) {
+            down_gates[i].txQueue->~cQueue();
+            cancelAndDelete(down_gates[i].enviado);
+        }
+    }
 }
 
 void Router::initialize() {
     for (int i = 0; i < max_gates; i++) {
-        if (gate("up_in", i)->isConnected()) {
-            up_in[i] = true;
-            up_inc++;
-        } else {
-            up_in[i] = false;
+        initializeGate(&(up_gates[i]));
+        initializeGate(&(down_gates[i]));
+
+        if (gate("up_layer$i", i)->isConnected()) {
+            up_gates[i].input = true;
         }
 
-        if (gate("up_out", i)->isConnected()) {
-            up_out[i] = true;
-            up_outc++;
-        } else {
-            up_out[i] = false;
+        if (gate("up_layer$o", i)->isConnected()) {
+            up_gates[i].output = true;
         }
 
-        if (gate("down_in", i)->isConnected()) {
-            down_in[i] = true;
-            down_inc++;
-        } else {
-            down_in[i] = false;
+        if (gate("down_layer$i", i)->isConnected()) {
+            down_gates[i].input = true;
         }
 
-        if (gate("down_out", i)->isConnected()) {
-            down_out[i] = true;
-            down_outc++;
-        } else {
-            down_out[i] = false;
+        if (gate("down_layer$o", i)->isConnected()) {
+            down_gates[i].output = true;
+            if (gate("down_layer$o", i)->findTransmissionChannel() != nullptr) {
+                down_gates[i].txChannel =
+                        gate("down_layer$o", i)->findTransmissionChannel();
+                down_gates[i].txQueue = new cQueue();
+                down_gates[i].enviado = new PaqueteEnviado();
+                down_gates[i].enviado->setGateId(i);
+            }
         }
     }
 
-    header_tam = par("header_tam");
-    direccion = par("direccion");
-    ttl = par("ttl");
+    header_tam = par("redHeaderTam");
+    ttl = par("TTL");
 
-    if (par("destino").containsValue()
-            && ((destino = par("destino")) < min_net || destino > max_net)) {
-        bubble("Destino no valido");
-        abort();
+    if (((direccion = par("direccion")) < min_net || destino > max_net)) {
+        EV << "Direccion no valido\n";
+        endSimulation();
     }
+
+    destino = par("destino");
+
+    /*if (par("destino").containsValue()
+     && ((destino = par("destino")) < min_net || destino > max_net)) {
+     EV << "Destino no valido\n";
+     endSimulation();
+     }*/
 
     if (!par("configuracion").containsValue()
             || (n_routes = config(par("configuracion").xmlValue())) < 0) {
-        bubble("Configuracion no valida");
-        abort();
+        EV << "Configuracion no valida\n";
+        endSimulation();
     }
 
+}
+
+void Router::initializeGate(gates* gateInit) {
+    gateInit->input = false;
+    gateInit->output = false;
+    gateInit->txChannel = nullptr;
+    gateInit->txQueue = nullptr;
+    gateInit->enviado = nullptr;
 }
 
 void Router::handleMessage(cMessage* msg) {
 
     Red* red = NULL;
 
-    if (msg->arrivedOn("up_in")) { //Viene de arriba
-        char nombre[15];
-        sprintf(nombre, "Red-%d", ((Transporte*) msg)->getSecuencia());
+    if (msg->isSelfMessage()) {
+        PaqueteEnviado* eventoEnviar = check_and_cast<PaqueteEnviado *>(msg);
+        gates* selected_gate = &down_gates[eventoEnviar->getGateId()];
 
-        red = new Red(nombre);
+        red = (Red*) selected_gate->txQueue->pop();
 
-        red->setSrcAddr(direccion);
-        red->setDstAddr(destino);
-        red->setTtl(ttl);
-        red->setBitLength(header_tam);
-        red->encapsulate((cPacket*) msg);
+        send(red, "down_layer$o", eventoEnviar->getGateId());
 
-        rutar(red);
+        if (!selected_gate->txQueue->isEmpty())
+            scheduleAt(selected_gate->txChannel->getTransmissionFinishTime(),
+                    selected_gate->enviado);
+    } else if (msg->arrivedOn("up_layer$i")) { //Viene de arriba
 
+        InterTransporteRed* itr = check_and_cast<InterTransporteRed *>(msg);
+        Transporte* transporte = check_and_cast<Transporte *>(
+                itr->decapsulate());
+
+        unsigned int origen;
+
+        if (((origen = itr->getOrigen()) == 0 && itr->getDestino() == 0
+                && destino != 0) || (origen != 0 && itr->getDestino() != 0)) {
+            char nombre[20];
+            sprintf(nombre, (origen == 0 ? "RedReq-%d" : "RedRes-%d"),
+                    transporte->getSecuencia());
+
+            red = new Red(nombre);
+
+            if (origen == 0) { //Nuevo paquete
+                red->setSrcAddr(direccion);
+                red->setDstAddr(destino);
+            } else { //Respuesta a un paquete
+                red->setSrcAddr(itr->getDestino());
+                red->setDstAddr(itr->getOrigen());
+            }
+
+            red->setTtl(ttl);
+            red->setBitLength(header_tam);
+            red->encapsulate(transporte);
+
+            if (direccion != destino) {
+                rutar(red);
+            } else { //Cosa un poco raro, pero contemplado
+                send_up(red);
+            }
+        } else {
+            EV
+                      << "Ha llegado un paquete de la capa de arriba en malas condiciones\n";
+            delete (transporte);
+
+        }
+
+        delete (itr);
     } else { //Viene de abajo
 
         red = (Red *) msg;
 
         if (red->hasBitError()) { //Si el paquete tiene errores directamente descartar
-            bubble("Paquete con error");
+            EV << "Recibido paquete con error\n";
             delete (msg);
         } else {
-            int dest = red->getDstAddr();
+            int destino = red->getDstAddr();
 
-            if (dest == direccion) {
+            if (destino == direccion) {
                 /*soy el destinatario*/
                 send_up(red);
             } else {
                 /*necesario rutar*/
                 if (red->getTtl() == 1) {
 
-                    bubble("Paquete con TTL a 0");
+                    EV << "Paquete con TTL a 0\n";
                     delete (red);
                 } else {
                     red->setTtl(red->getTtl() - 1);
@@ -128,6 +182,95 @@ void Router::handleMessage(cMessage* msg) {
             }
         }
     }
+}
+
+void Router::rutar(Red* red) {
+
+    simtime_t time;
+    gates* selected_gate;
+    double irand, crand;
+    unsigned int dest = red->getDstAddr();
+
+    for (int i = 0; i < n_routes; i++) {
+        if (dest >= routes[i].start && dest <= routes[i].stop) {
+            if (routes[i].n_gates == 1) {
+                if (gate("down_layer$o", routes[i].gates[0].gate)->isConnected()) {
+                    selected_gate = &down_gates[routes[i].gates[0].gate];
+                    if (selected_gate->txChannel != nullptr) { //Tenemos un canal
+
+                        selected_gate->txQueue->insert(red);
+
+                        if (!selected_gate->enviado->isScheduled()) {
+                            time = simTime();
+                            if (time
+                                    < selected_gate->txChannel->getTransmissionFinishTime())
+                                time =
+                                        selected_gate->txChannel->getTransmissionFinishTime();
+
+                            scheduleAt(time, selected_gate->enviado);
+                        }
+                    } else
+                        //El enlace esta enchufado directo sin canal ninguno
+                        send(red, "down_layer$o", routes[i].gates[0].gate);
+                } else
+                    delete (red);
+                return;
+            } else {
+                irand = uniform(0, 1);
+                crand = 0;
+                for (int j = 0; j < routes[i].n_gates; j++) {
+                    if (irand < (crand += routes[i].gates[j].prob)) {
+                        if (gate("down_layer$o", routes[i].gates[j].gate)->isConnected()) {
+                            selected_gate =
+                                    &down_gates[routes[i].gates[j].gate];
+                            if (selected_gate->txChannel != nullptr) { //Tenemos un canal
+
+                                selected_gate->txQueue->insert(red);
+
+                                if (!selected_gate->enviado->isScheduled()) {
+                                    time = simTime();
+                                    if (time
+                                            < selected_gate->txChannel->getTransmissionFinishTime())
+                                        time =
+                                                selected_gate->txChannel->getTransmissionFinishTime();
+
+                                    scheduleAt(time, selected_gate->enviado);
+                                }
+                            } else
+                                //El enlace esta enchufado directo sin canal ninguno
+                                send(red, "down_layer$o",
+                                        routes[i].gates[j].gate);
+                        } else
+                            delete (red);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    delete (red);
+}
+
+void Router::send_up(Red* red) {
+
+    Transporte * transporte = (Transporte *) red->decapsulate();
+    int puerto = transporte->getDstPort();
+
+    if (puerto >= max_gates || !gate("up_layer$o", puerto)->isConnected()) {
+        EV
+                  << "Recibido paquete hacia un puerto en el que no hay capa de transporte\n";
+        delete (transporte);
+    } else {
+
+        InterTransporteRed* itr = new InterTransporteRed(transporte->getName());
+        itr->setOrigen(red->getSrcAddr());
+        itr->setDestino(red->getDstAddr());
+        itr->encapsulate(transporte);
+
+        send(itr, "up_layer$o", puerto);
+    }
+    delete (red);
 }
 
 int Router::config(cXMLElement *xml) {
@@ -140,27 +283,27 @@ int Router::config(cXMLElement *xml) {
 
     if (strcmp(xml->getTagName(), "routes") != 0) {
         /*no es el tipo esperado*/
-        EV << "XML inesperado";
+        EV << "XML inesperado\n";
         return -1;
     }
 
     if (not (xml->hasChildren())) {
         /*no contine rutas*/
-        EV << "No hay rutas";
+        EV << "No hay rutas\n";
         return -1;
     }
 
     /*comprobar número de rutas*/
     tmp = xml->getFirstChild();
     if (not (tmp->hasChildren())) {
-        EV << "Una ruta no tiene puertas";
+        EV << "Una ruta no tiene puertas\n";
         return -1;
     }
 
     while ((tmp = tmp->getNextSibling()) != NULL) {
         n++;
         if (not (tmp->hasChildren())) {
-            EV << "Una ruta no tiene puertas";
+            EV << "Una ruta no tiene puertas\n";
             return -1;
         }
     }
@@ -182,11 +325,11 @@ int Router::config(cXMLElement *xml) {
 
         if (routes[i].start < min_net || routes[i].start > max_net
                 || routes[i].stop < min_net || routes[i].stop > max_net) {
-            EV << "Rango de direcciones erroneo";
+            EV << "Rango de direcciones erroneo\n";
             return -1;
         }
         if (routes[i].start > routes[i].stop) {
-            EV << "Start mayor que Stop";
+            EV << "Ruta de inicio mayor que la ruta de fin\n";
             return -1;
         }
 
@@ -199,11 +342,12 @@ int Router::config(cXMLElement *xml) {
                 ig++, gate_tmp = gate_tmp->getNextSibling()) {
             routes[i].gates[ig].gate = atoi(gate_tmp->getAttribute("id"));
             if (routes[i].gates[ig].gate >= max_gates) {
-                EV << "Solo hay " << max_gates << " salidas";
+                EV << "Solo hay " << max_gates << " salidas\n";
                 return -1;
             }
-            if (not (down_out[routes[i].gates[ig].gate])) {
-                EV << "Puerta no conectada " << routes[i].gates[ig].gate;
+            if (not (down_gates[routes[i].gates[ig].gate].output)) {
+                EV << "Puerta no conectada " << routes[i].gates[ig].gate
+                          << "\n";
                 return -1;
             }
 
@@ -211,7 +355,8 @@ int Router::config(cXMLElement *xml) {
                 routes[i].gates[ig].prob = atof(gate_tmp->getAttribute("prob"));
                 if (routes[i].gates[ig].prob > 1
                         || routes[i].gates[ig].prob <= 0) {
-                    EV << "Probabilidad erronea";
+                    EV
+                              << "Probabilidad erronea, deberia ser un valor entre 0 y 1\n";
                     return -1;
                 }
                 p += routes[i].gates[ig].prob;
@@ -221,53 +366,10 @@ int Router::config(cXMLElement *xml) {
 
         if (routes[i].n_gates > 1 && p != 1) {
             EV << "Error en la suma de probabilidades: " << p << " n_gates:"
-                      << routes[i].n_gates;
+                      << routes[i].n_gates << "\n";
             return -1;
         }
     }
 
     return n;
 }
-
-void Router::rutar(Red* red) {
-
-    double irand, crand;
-    unsigned int dest = red->getDstAddr();
-
-    for (int i = 0; i < n_routes; i++) {
-        if (dest >= routes[i].start && dest <= routes[i].stop) {
-            if (routes[i].n_gates == 1) {
-                send(red, "down_out", routes[i].gates[0].gate);
-                return;
-            } else {
-                irand = uniform(0, 1);
-                crand = 0;
-                for (int j = 0; j < routes[i].n_gates; j++) {
-                    if (irand < (crand += routes[i].gates[j].prob)) {
-                        send(red, "down_out", routes[i].gates[j].gate);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void Router::send_up(Red* red) {
-/*
-    Transport * tp = (Transport *) nw->decapsulate();
-    int gate = tp->getDstAddr();
-    if (gate < min_trans || gate > max_trans) {
-        bubble("puerto erroneo");
-        delete (tp);
-        return;
-    } else {
-        gate = gate / 100;
-        il->setOrigen(nw->getSrcAddr());
-        il->setDestino(origen);
-        il->encapsulate(tp);
-        send(il, "up_out", gate);
-    }
-    */
-}
-

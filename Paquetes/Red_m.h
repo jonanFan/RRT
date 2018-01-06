@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.2 from Red.msg.
+// Generated file, do not edit! Created by nedtool 5.2 from Paquetes/Red.msg.
 //
 
 #if defined(__clang__)
@@ -19,15 +19,15 @@
 
 
 /**
- * Class generated from <tt>Red.msg:19</tt> by nedtool.
+ * Class generated from <tt>Paquetes/Red.msg:19</tt> by nedtool.
  * <pre>
  * //
  * // TODO generated message class
  * //
  * packet Red
  * {
- *     unsigned short srcAddr;
- *     unsigned short dstAddr;
+ *     unsigned int srcAddr;
+ *     unsigned int dstAddr;
  *     unsigned int ttl;
  * }
  * </pre>
@@ -35,8 +35,8 @@
 class Red : public ::omnetpp::cPacket
 {
   protected:
-    unsigned short srcAddr;
-    unsigned short dstAddr;
+    unsigned int srcAddr;
+    unsigned int dstAddr;
     unsigned int ttl;
 
   private:
@@ -56,10 +56,10 @@ class Red : public ::omnetpp::cPacket
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
-    virtual unsigned short getSrcAddr() const;
-    virtual void setSrcAddr(unsigned short srcAddr);
-    virtual unsigned short getDstAddr() const;
-    virtual void setDstAddr(unsigned short dstAddr);
+    virtual unsigned int getSrcAddr() const;
+    virtual void setSrcAddr(unsigned int srcAddr);
+    virtual unsigned int getDstAddr() const;
+    virtual void setDstAddr(unsigned int dstAddr);
     virtual unsigned int getTtl() const;
     virtual void setTtl(unsigned int ttl);
 };

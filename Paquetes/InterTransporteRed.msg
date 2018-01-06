@@ -13,29 +13,10 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef TransmisorDummy_H_
-#define TransmisorDummy_H_
-
-#include <omnetpp.h>
-#include "Paquetes/General.h"
-
-
-using namespace omnetpp;
-
-class TransmisorDummy: public cSimpleModule{
-private:
-    unsigned int puerto;
-    unsigned int dstPuerto;
-    unsigned int secuencia;
-    unsigned int header_tam;
-protected:
-    void initialize();
-    void handleMessage(cMessage* msg);
-public:
-    TransmisorDummy();
-    virtual ~TransmisorDummy();
-};
-
-Define_Module(TransmisorDummy);
-
-#endif /* TransmisorDummy_H_ */
+//
+// TODO generated message class
+//
+packet InterTransporteRed {
+    unsigned int	origen;
+    unsigned int	destino;
+}

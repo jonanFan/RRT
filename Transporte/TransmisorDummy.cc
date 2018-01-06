@@ -16,6 +16,7 @@
 #include "TransmisorDummy.h"
 
 #include "Paquetes/Transporte_m.h"
+#include "Paquetes/InterTransporteRed_m.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -33,14 +34,20 @@ TransmisorDummy::~TransmisorDummy() {
 
 void TransmisorDummy::initialize() {
     secuencia = 0;
-    header_tam = par("header_tam");
+    header_tam = par("transporteHeaderTam");
     puerto = par("puerto");
     dstPuerto = par("dstPuerto");
+
+    if (puerto >= max_gates || dstPuerto >= max_gates) {
+        EV << "Puerto maximo excedido\n" ;
+        endSimulation();
+    }
 }
 
 void TransmisorDummy::handleMessage(cMessage* msg) {
 
     Transporte* paquete = NULL;
+    InterTransporteRed* itr= NULL;
 
     if (msg->arrivedOn("up_layer")) {
         char nombre[15];
@@ -54,14 +61,20 @@ void TransmisorDummy::handleMessage(cMessage* msg) {
         paquete->setDstPort(dstPuerto);
         paquete->encapsulate((cPacket*) msg);
 
-        send(paquete, "down_layer$o");
+        itr=new InterTransporteRed(nombre);
+        itr->encapsulate(paquete);
+        itr->setOrigen(0);
+        itr->setDestino(0);
+        send(itr, "down_layer$o");
 
     } else if (msg->arrivedOn("down_layer$i")) {
 
-        paquete = check_and_cast<Transporte *>(msg);
-        char* nombre=(char*)paquete->getName();
+        itr=check_and_cast<InterTransporteRed *>(msg);
+        paquete = check_and_cast<Transporte *>(itr->decapsulate());
+        char* nombre = (char*) paquete->getName();
 
-        if ((strncmp(nombre, "NACK", 4) == 0 || strncmp(nombre, "ACK", 3) == 0) && !paquete->hasBitError() && paquete->getDstPort() == puerto) {
+        if ((strncmp(nombre, "NACK", 4) == 0 || strncmp(nombre, "ACK", 3) == 0)
+                && !paquete->hasBitError() && paquete->getDstPort() == puerto) {
 
             if (paquete->getAck() != -1 && paquete->getName())
                 EV << "PAQUETE " << paquete->getName() << " RECIBIDO CON "
@@ -72,7 +85,7 @@ void TransmisorDummy::handleMessage(cMessage* msg) {
             }
         }
         delete (paquete);
-
+        delete (itr);
     } else {
         delete (msg);
     }

@@ -18,6 +18,8 @@
 
 #include <omnetpp.h>
 #include "Paquetes/Transporte_m.h"
+#include "Paquetes/General.h"
+
 
 using namespace omnetpp;
 

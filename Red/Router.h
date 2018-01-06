@@ -19,17 +19,16 @@
 #include <omnetpp.h>
 #include <omnetpp/cxmlelement.h>
 #include "Paquetes/Red_m.h"
-
+#include "Paquetes/PaqueteEnviado_m.h"
+#include "Paquetes/General.h"
 
 using namespace omnetpp;
-
-const short max_gates = 10;
 
 class Router: public cSimpleModule {
 private:
 
-    const short max_net = 99;
-    const short min_net = 0;
+    const short max_net = 100;
+    const short min_net = 1;
 
     struct output {
         short gate;
@@ -43,14 +42,20 @@ private:
         output * gates;
     };
 
-    int down_inc;
-    int down_outc;
-    int up_inc;
-    int up_outc;
-    bool down_in[max_gates];
+    struct gates {
+        bool input;
+        bool output;
+        cChannel *txChannel;
+        cQueue* txQueue;
+        PaqueteEnviado* enviado;
+    };
+
+  /*  bool down_in[max_gates];
     bool down_out[max_gates];
     bool up_in[max_gates];
-    bool up_out[max_gates];
+    bool up_out[max_gates];*/
+    gates up_gates[max_gates];
+    gates down_gates[max_gates];
     route* routes;
     int n_routes;
 
@@ -59,9 +64,9 @@ private:
     int header_tam;
     int ttl;
 
-    cXMLElement* xml;
 protected:
     void initialize();
+    void initializeGate(gates* gateInit);
     void handleMessage(cMessage* msg);
     int config(cXMLElement *xml);
     void rutar(Red* red);

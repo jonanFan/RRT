@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.2 from Paquetes/Red.msg.
+// Generated file, do not edit! Created by nedtool 5.2 from Paquetes/PaqueteEnviado.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "Red_m.h"
+#include "PaqueteEnviado_m.h"
 
 namespace omnetpp {
 
@@ -177,92 +177,64 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
     return out;
 }
 
-Register_Class(Red)
+Register_Class(PaqueteEnviado)
 
-Red::Red(const char *name, short kind) : ::omnetpp::cPacket(name,kind)
+PaqueteEnviado::PaqueteEnviado(const char *name, short kind) : ::omnetpp::cMessage(name,kind)
 {
-    this->srcAddr = 0;
-    this->dstAddr = 0;
-    this->ttl = 0;
+    this->gateId = 0;
 }
 
-Red::Red(const Red& other) : ::omnetpp::cPacket(other)
+PaqueteEnviado::PaqueteEnviado(const PaqueteEnviado& other) : ::omnetpp::cMessage(other)
 {
     copy(other);
 }
 
-Red::~Red()
+PaqueteEnviado::~PaqueteEnviado()
 {
 }
 
-Red& Red::operator=(const Red& other)
+PaqueteEnviado& PaqueteEnviado::operator=(const PaqueteEnviado& other)
 {
     if (this==&other) return *this;
-    ::omnetpp::cPacket::operator=(other);
+    ::omnetpp::cMessage::operator=(other);
     copy(other);
     return *this;
 }
 
-void Red::copy(const Red& other)
+void PaqueteEnviado::copy(const PaqueteEnviado& other)
 {
-    this->srcAddr = other.srcAddr;
-    this->dstAddr = other.dstAddr;
-    this->ttl = other.ttl;
+    this->gateId = other.gateId;
 }
 
-void Red::parsimPack(omnetpp::cCommBuffer *b) const
+void PaqueteEnviado::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::omnetpp::cPacket::parsimPack(b);
-    doParsimPacking(b,this->srcAddr);
-    doParsimPacking(b,this->dstAddr);
-    doParsimPacking(b,this->ttl);
+    ::omnetpp::cMessage::parsimPack(b);
+    doParsimPacking(b,this->gateId);
 }
 
-void Red::parsimUnpack(omnetpp::cCommBuffer *b)
+void PaqueteEnviado::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::omnetpp::cPacket::parsimUnpack(b);
-    doParsimUnpacking(b,this->srcAddr);
-    doParsimUnpacking(b,this->dstAddr);
-    doParsimUnpacking(b,this->ttl);
+    ::omnetpp::cMessage::parsimUnpack(b);
+    doParsimUnpacking(b,this->gateId);
 }
 
-unsigned int Red::getSrcAddr() const
+short PaqueteEnviado::getGateId() const
 {
-    return this->srcAddr;
+    return this->gateId;
 }
 
-void Red::setSrcAddr(unsigned int srcAddr)
+void PaqueteEnviado::setGateId(short gateId)
 {
-    this->srcAddr = srcAddr;
+    this->gateId = gateId;
 }
 
-unsigned int Red::getDstAddr() const
-{
-    return this->dstAddr;
-}
-
-void Red::setDstAddr(unsigned int dstAddr)
-{
-    this->dstAddr = dstAddr;
-}
-
-unsigned int Red::getTtl() const
-{
-    return this->ttl;
-}
-
-void Red::setTtl(unsigned int ttl)
-{
-    this->ttl = ttl;
-}
-
-class RedDescriptor : public omnetpp::cClassDescriptor
+class PaqueteEnviadoDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertynames;
   public:
-    RedDescriptor();
-    virtual ~RedDescriptor();
+    PaqueteEnviadoDescriptor();
+    virtual ~PaqueteEnviadoDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -284,24 +256,24 @@ class RedDescriptor : public omnetpp::cClassDescriptor
     virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
 };
 
-Register_ClassDescriptor(RedDescriptor)
+Register_ClassDescriptor(PaqueteEnviadoDescriptor)
 
-RedDescriptor::RedDescriptor() : omnetpp::cClassDescriptor("Red", "omnetpp::cPacket")
+PaqueteEnviadoDescriptor::PaqueteEnviadoDescriptor() : omnetpp::cClassDescriptor("PaqueteEnviado", "omnetpp::cMessage")
 {
     propertynames = nullptr;
 }
 
-RedDescriptor::~RedDescriptor()
+PaqueteEnviadoDescriptor::~PaqueteEnviadoDescriptor()
 {
     delete[] propertynames;
 }
 
-bool RedDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool PaqueteEnviadoDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<Red *>(obj)!=nullptr;
+    return dynamic_cast<PaqueteEnviado *>(obj)!=nullptr;
 }
 
-const char **RedDescriptor::getPropertyNames() const
+const char **PaqueteEnviadoDescriptor::getPropertyNames() const
 {
     if (!propertynames) {
         static const char *names[] = {  nullptr };
@@ -312,19 +284,19 @@ const char **RedDescriptor::getPropertyNames() const
     return propertynames;
 }
 
-const char *RedDescriptor::getProperty(const char *propertyname) const
+const char *PaqueteEnviadoDescriptor::getProperty(const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : nullptr;
 }
 
-int RedDescriptor::getFieldCount() const
+int PaqueteEnviadoDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 3+basedesc->getFieldCount() : 3;
+    return basedesc ? 1+basedesc->getFieldCount() : 1;
 }
 
-unsigned int RedDescriptor::getFieldTypeFlags(int field) const
+unsigned int PaqueteEnviadoDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -334,13 +306,11 @@ unsigned int RedDescriptor::getFieldTypeFlags(int field) const
     }
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
     };
-    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<1) ? fieldTypeFlags[field] : 0;
 }
 
-const char *RedDescriptor::getFieldName(int field) const
+const char *PaqueteEnviadoDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -349,24 +319,20 @@ const char *RedDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "srcAddr",
-        "dstAddr",
-        "ttl",
+        "gateId",
     };
-    return (field>=0 && field<3) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<1) ? fieldNames[field] : nullptr;
 }
 
-int RedDescriptor::findField(const char *fieldName) const
+int PaqueteEnviadoDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0]=='s' && strcmp(fieldName, "srcAddr")==0) return base+0;
-    if (fieldName[0]=='d' && strcmp(fieldName, "dstAddr")==0) return base+1;
-    if (fieldName[0]=='t' && strcmp(fieldName, "ttl")==0) return base+2;
+    if (fieldName[0]=='g' && strcmp(fieldName, "gateId")==0) return base+0;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
-const char *RedDescriptor::getFieldTypeString(int field) const
+const char *PaqueteEnviadoDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -375,14 +341,12 @@ const char *RedDescriptor::getFieldTypeString(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "unsigned int",
-        "unsigned int",
-        "unsigned int",
+        "short",
     };
-    return (field>=0 && field<3) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<1) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **RedDescriptor::getFieldPropertyNames(int field) const
+const char **PaqueteEnviadoDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -395,7 +359,7 @@ const char **RedDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *RedDescriptor::getFieldProperty(int field, const char *propertyname) const
+const char *PaqueteEnviadoDescriptor::getFieldProperty(int field, const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -408,7 +372,7 @@ const char *RedDescriptor::getFieldProperty(int field, const char *propertyname)
     }
 }
 
-int RedDescriptor::getFieldArraySize(void *object, int field) const
+int PaqueteEnviadoDescriptor::getFieldArraySize(void *object, int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -416,13 +380,13 @@ int RedDescriptor::getFieldArraySize(void *object, int field) const
             return basedesc->getFieldArraySize(object, field);
         field -= basedesc->getFieldCount();
     }
-    Red *pp = (Red *)object; (void)pp;
+    PaqueteEnviado *pp = (PaqueteEnviado *)object; (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-const char *RedDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+const char *PaqueteEnviadoDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -430,13 +394,13 @@ const char *RedDescriptor::getFieldDynamicTypeString(void *object, int field, in
             return basedesc->getFieldDynamicTypeString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    Red *pp = (Red *)object; (void)pp;
+    PaqueteEnviado *pp = (PaqueteEnviado *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string RedDescriptor::getFieldValueAsString(void *object, int field, int i) const
+std::string PaqueteEnviadoDescriptor::getFieldValueAsString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -444,16 +408,14 @@ std::string RedDescriptor::getFieldValueAsString(void *object, int field, int i)
             return basedesc->getFieldValueAsString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    Red *pp = (Red *)object; (void)pp;
+    PaqueteEnviado *pp = (PaqueteEnviado *)object; (void)pp;
     switch (field) {
-        case 0: return ulong2string(pp->getSrcAddr());
-        case 1: return ulong2string(pp->getDstAddr());
-        case 2: return ulong2string(pp->getTtl());
+        case 0: return long2string(pp->getGateId());
         default: return "";
     }
 }
 
-bool RedDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+bool PaqueteEnviadoDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -461,16 +423,14 @@ bool RedDescriptor::setFieldValueAsString(void *object, int field, int i, const 
             return basedesc->setFieldValueAsString(object,field,i,value);
         field -= basedesc->getFieldCount();
     }
-    Red *pp = (Red *)object; (void)pp;
+    PaqueteEnviado *pp = (PaqueteEnviado *)object; (void)pp;
     switch (field) {
-        case 0: pp->setSrcAddr(string2ulong(value)); return true;
-        case 1: pp->setDstAddr(string2ulong(value)); return true;
-        case 2: pp->setTtl(string2ulong(value)); return true;
+        case 0: pp->setGateId(string2long(value)); return true;
         default: return false;
     }
 }
 
-const char *RedDescriptor::getFieldStructName(int field) const
+const char *PaqueteEnviadoDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -483,7 +443,7 @@ const char *RedDescriptor::getFieldStructName(int field) const
     };
 }
 
-void *RedDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+void *PaqueteEnviadoDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -491,7 +451,7 @@ void *RedDescriptor::getFieldStructValuePointer(void *object, int field, int i) 
             return basedesc->getFieldStructValuePointer(object, field, i);
         field -= basedesc->getFieldCount();
     }
-    Red *pp = (Red *)object; (void)pp;
+    PaqueteEnviado *pp = (PaqueteEnviado *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }

@@ -37,11 +37,15 @@ OBJS = \
     $O/Red/Router.o \
     $O/Transporte/ReceptorTransporte.o \
     $O/Transporte/TransmisorDummy.o \
+    $O/Paquetes/InterTransporteRed_m.o \
+    $O/Paquetes/PaqueteEnviado_m.o \
     $O/Paquetes/Red_m.o \
     $O/Paquetes/Transporte_m.o
 
 # Message files
 MSGFILES = \
+    Paquetes/InterTransporteRed.msg \
+    Paquetes/PaqueteEnviado.msg \
     Paquetes/Red.msg \
     Paquetes/Transporte.msg
 

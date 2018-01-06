@@ -17,8 +17,10 @@ network Jacksson
 {
     parameters:
         **.lenACK = 1;
+        **.transporteHeaderTam=10;
+        **.redHeaderTam=10;
 
-        @display("bgb=833.1125,349.63748");
+        @display("bgb=531.495,484.41376");
 
     types:
         channel C extends Canal
@@ -31,31 +33,47 @@ network Jacksson
 
     submodules:
         Fuente: Fuente {
-            @display("p=71.145,136.0125");
+            @display("p=116.13375,134.96625");
             lambda = 1000;
             startTime = 20;
             tamPaquete = 1024;
         }
         Receptor: Receptor {
-            @display("p=652.86,136.0125");
+            @display("p=392.34375,134.96625");
         }
 
         TransmisorDummy: TransmisorDummy {
-            @display("p=277.25626,136.0125");
-            header_tam = 10;
+            @display("p=116.13375,218.66624");
             puerto = 0;
-            dstPuerto = 1;
+            dstPuerto = 0;
         }
 
         ReceptorTransporte: ReceptorTransporte {
-            @display("p=474.9975,136.0125");
-            puerto = 1;
+            @display("p=392.34375,218.66624");
+            puerto = 0;
         }
 
+        TransmisorRouter: Router {
+            @display("p=116.13375,303.4125");
+            direccion = 1;
+            destino = 2;
+            TTL = 10;
+            configuracion = xmldoc("jackson1.xml");
+
+        }
+
+        ReceptorRouter: Router {
+            @display("p=392.34375,303.4125");
+            direccion = 2;
+            TTL = 10;
+            configuracion = xmldoc("jackson1.xml");
+        }
 
     connections:
         Fuente.down_layer --> TransmisorDummy.up_layer;
-        TransmisorDummy.down_layer <--> ReceptorTransporte.down_layer;
+        TransmisorDummy.down_layer <--> TransmisorRouter.up_layer[0];
+        TransmisorRouter.down_layer[0] <--> C <--> ReceptorRouter.down_layer[0];
+        ReceptorRouter.up_layer[0] <--> ReceptorTransporte.down_layer;
         ReceptorTransporte.up_layer --> Receptor.down_layer;
 }
 

@@ -32,7 +32,7 @@ simple ReceptorTransporte
 simple TransmisorDummy
 {
     parameters:
-		int header_tam= default(10);
+		int transporteHeaderTam= default(10);
 		int puerto=default(0);
 		int dstPuerto=default(0);
 		
@@ -40,6 +40,20 @@ simple TransmisorDummy
     gates:
         input up_layer;
         inout down_layer;
+}
+
+simple Router
+{
+    parameters:
+        @display("i=block/routing");
+        int direccion = default(0);
+        int destino = default(0);
+        int TTL = default(10);
+        int redHeaderTam = default(0);
+        xml configuracion = default(xmldoc("Red/Router.xml"));
+    gates:
+        inout up_layer[10] @loose;
+        inout down_layer[10] @loose;
 }
 
 channel Canal extends ned.DatarateChannel

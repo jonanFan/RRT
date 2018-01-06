@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT routes (route+)>
+<!ELEMENT route (gateway+)>
+<!ATTLIST route
+	start NMTOKEN #REQUIRED
+	stop NMTOKEN #REQUIRED	
+>
+<!ELEMENT gateway EMPTY>
+<!ATTLIST gateway
+	id NMTOKEN #REQUIRED
+	prob NMTOKEN "1"
+>

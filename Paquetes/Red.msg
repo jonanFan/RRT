@@ -17,7 +17,7 @@
 // TODO generated message class
 //
 packet Red {
-    unsigned short	srcAddr;
-    unsigned short	dstAddr;
+    unsigned int	srcAddr;
+    unsigned int	dstAddr;
     unsigned int 	ttl;
 }
