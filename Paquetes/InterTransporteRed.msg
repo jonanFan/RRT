@@ -19,4 +19,7 @@
 packet InterTransporteRed {
     unsigned int	origen;
     unsigned int	destino;
+    unsigned int	packetType;
+    simtime_t	 	delay;
+    unsigned int 	datarate;
 }

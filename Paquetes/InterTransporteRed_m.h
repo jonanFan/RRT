@@ -28,6 +28,9 @@
  * {
  *     unsigned int origen;
  *     unsigned int destino;
+ *     unsigned int packetType;
+ *     simtime_t delay;
+ *     unsigned int datarate;
  * }
  * </pre>
  */
@@ -36,6 +39,9 @@ class InterTransporteRed : public ::omnetpp::cPacket
   protected:
     unsigned int origen;
     unsigned int destino;
+    unsigned int packetType;
+    ::omnetpp::simtime_t delay;
+    unsigned int datarate;
 
   private:
     void copy(const InterTransporteRed& other);
@@ -58,6 +64,12 @@ class InterTransporteRed : public ::omnetpp::cPacket
     virtual void setOrigen(unsigned int origen);
     virtual unsigned int getDestino() const;
     virtual void setDestino(unsigned int destino);
+    virtual unsigned int getPacketType() const;
+    virtual void setPacketType(unsigned int packetType);
+    virtual ::omnetpp::simtime_t getDelay() const;
+    virtual void setDelay(::omnetpp::simtime_t delay);
+    virtual unsigned int getDatarate() const;
+    virtual void setDatarate(unsigned int datarate);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const InterTransporteRed& obj) {obj.parsimPack(b);}

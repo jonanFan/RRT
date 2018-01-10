@@ -183,6 +183,9 @@ InterTransporteRed::InterTransporteRed(const char *name, short kind) : ::omnetpp
 {
     this->origen = 0;
     this->destino = 0;
+    this->packetType = 0;
+    this->delay = 0;
+    this->datarate = 0;
 }
 
 InterTransporteRed::InterTransporteRed(const InterTransporteRed& other) : ::omnetpp::cPacket(other)
@@ -206,6 +209,9 @@ void InterTransporteRed::copy(const InterTransporteRed& other)
 {
     this->origen = other.origen;
     this->destino = other.destino;
+    this->packetType = other.packetType;
+    this->delay = other.delay;
+    this->datarate = other.datarate;
 }
 
 void InterTransporteRed::parsimPack(omnetpp::cCommBuffer *b) const
@@ -213,6 +219,9 @@ void InterTransporteRed::parsimPack(omnetpp::cCommBuffer *b) const
     ::omnetpp::cPacket::parsimPack(b);
     doParsimPacking(b,this->origen);
     doParsimPacking(b,this->destino);
+    doParsimPacking(b,this->packetType);
+    doParsimPacking(b,this->delay);
+    doParsimPacking(b,this->datarate);
 }
 
 void InterTransporteRed::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -220,6 +229,9 @@ void InterTransporteRed::parsimUnpack(omnetpp::cCommBuffer *b)
     ::omnetpp::cPacket::parsimUnpack(b);
     doParsimUnpacking(b,this->origen);
     doParsimUnpacking(b,this->destino);
+    doParsimUnpacking(b,this->packetType);
+    doParsimUnpacking(b,this->delay);
+    doParsimUnpacking(b,this->datarate);
 }
 
 unsigned int InterTransporteRed::getOrigen() const
@@ -240,6 +252,36 @@ unsigned int InterTransporteRed::getDestino() const
 void InterTransporteRed::setDestino(unsigned int destino)
 {
     this->destino = destino;
+}
+
+unsigned int InterTransporteRed::getPacketType() const
+{
+    return this->packetType;
+}
+
+void InterTransporteRed::setPacketType(unsigned int packetType)
+{
+    this->packetType = packetType;
+}
+
+::omnetpp::simtime_t InterTransporteRed::getDelay() const
+{
+    return this->delay;
+}
+
+void InterTransporteRed::setDelay(::omnetpp::simtime_t delay)
+{
+    this->delay = delay;
+}
+
+unsigned int InterTransporteRed::getDatarate() const
+{
+    return this->datarate;
+}
+
+void InterTransporteRed::setDatarate(unsigned int datarate)
+{
+    this->datarate = datarate;
 }
 
 class InterTransporteRedDescriptor : public omnetpp::cClassDescriptor
@@ -307,7 +349,7 @@ const char *InterTransporteRedDescriptor::getProperty(const char *propertyname) 
 int InterTransporteRedDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 2+basedesc->getFieldCount() : 2;
+    return basedesc ? 5+basedesc->getFieldCount() : 5;
 }
 
 unsigned int InterTransporteRedDescriptor::getFieldTypeFlags(int field) const
@@ -321,8 +363,11 @@ unsigned int InterTransporteRedDescriptor::getFieldTypeFlags(int field) const
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
 }
 
 const char *InterTransporteRedDescriptor::getFieldName(int field) const
@@ -336,8 +381,11 @@ const char *InterTransporteRedDescriptor::getFieldName(int field) const
     static const char *fieldNames[] = {
         "origen",
         "destino",
+        "packetType",
+        "delay",
+        "datarate",
     };
-    return (field>=0 && field<2) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<5) ? fieldNames[field] : nullptr;
 }
 
 int InterTransporteRedDescriptor::findField(const char *fieldName) const
@@ -346,6 +394,9 @@ int InterTransporteRedDescriptor::findField(const char *fieldName) const
     int base = basedesc ? basedesc->getFieldCount() : 0;
     if (fieldName[0]=='o' && strcmp(fieldName, "origen")==0) return base+0;
     if (fieldName[0]=='d' && strcmp(fieldName, "destino")==0) return base+1;
+    if (fieldName[0]=='p' && strcmp(fieldName, "packetType")==0) return base+2;
+    if (fieldName[0]=='d' && strcmp(fieldName, "delay")==0) return base+3;
+    if (fieldName[0]=='d' && strcmp(fieldName, "datarate")==0) return base+4;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -360,8 +411,11 @@ const char *InterTransporteRedDescriptor::getFieldTypeString(int field) const
     static const char *fieldTypeStrings[] = {
         "unsigned int",
         "unsigned int",
+        "unsigned int",
+        "simtime_t",
+        "unsigned int",
     };
-    return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<5) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **InterTransporteRedDescriptor::getFieldPropertyNames(int field) const
@@ -430,6 +484,9 @@ std::string InterTransporteRedDescriptor::getFieldValueAsString(void *object, in
     switch (field) {
         case 0: return ulong2string(pp->getOrigen());
         case 1: return ulong2string(pp->getDestino());
+        case 2: return ulong2string(pp->getPacketType());
+        case 3: return simtime2string(pp->getDelay());
+        case 4: return ulong2string(pp->getDatarate());
         default: return "";
     }
 }
@@ -446,6 +503,9 @@ bool InterTransporteRedDescriptor::setFieldValueAsString(void *object, int field
     switch (field) {
         case 0: pp->setOrigen(string2ulong(value)); return true;
         case 1: pp->setDestino(string2ulong(value)); return true;
+        case 2: pp->setPacketType(string2ulong(value)); return true;
+        case 3: pp->setDelay(string2simtime(value)); return true;
+        case 4: pp->setDatarate(string2ulong(value)); return true;
         default: return false;
     }
 }

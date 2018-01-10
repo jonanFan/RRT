@@ -15,6 +15,7 @@
 
 #include "ReceptorTransporte.h"
 #include "Paquetes/InterTransporteRed_m.h"
+#include "Paquetes/General.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -45,14 +46,14 @@ void ReceptorTransporte::handleMessage(cMessage *msg) {
 
     char *nombre = (char*) peticion->getName();
 
-    if ((strncmp(nombre, "NACK", 4) != 0 || strncmp(nombre, "ACK", 3) != 0)
-            && peticion->getDstPort() == puerto) {
+    if (itrPeticion->getPacketType() == packet_request && peticion->getDstPort() == puerto) {
 
         Transporte* respuesta = generarRespuesta(peticion);
 
         InterTransporteRed*  itrRespuesta=new InterTransporteRed(respuesta->getName());
         itrRespuesta->setOrigen(itrPeticion->getOrigen());
         itrRespuesta->setDestino(itrPeticion->getDestino());
+        itrRespuesta->setPacketType(packet_response);
         itrRespuesta->encapsulate(respuesta);
 
         if (respuesta->getAck() == 1) {
@@ -60,7 +61,11 @@ void ReceptorTransporte::handleMessage(cMessage *msg) {
         }
 
         send(itrRespuesta, "down_layer$o");
+    } else if(itrPeticion->getPacketType() == packet_send){
+
     }
+    else
+        EV << "Paquete de tipo desconocido\n";
 
     delete (peticion);
     delete (itrPeticion);

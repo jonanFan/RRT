@@ -17,6 +17,7 @@
 
 #include "Paquetes/Transporte_m.h"
 #include "Paquetes/InterTransporteRed_m.h"
+#include "Paquetes/General.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -39,7 +40,7 @@ void TransmisorDummy::initialize() {
     dstPuerto = par("dstPuerto");
 
     if (puerto >= max_gates || dstPuerto >= max_gates) {
-        EV << "Puerto maximo excedido\n" ;
+        EV << "Puerto maximo excedido\n";
         endSimulation();
     }
 }
@@ -47,7 +48,7 @@ void TransmisorDummy::initialize() {
 void TransmisorDummy::handleMessage(cMessage* msg) {
 
     Transporte* paquete = NULL;
-    InterTransporteRed* itr= NULL;
+    InterTransporteRed* itr = NULL;
 
     if (msg->arrivedOn("up_layer")) {
         char nombre[15];
@@ -61,29 +62,37 @@ void TransmisorDummy::handleMessage(cMessage* msg) {
         paquete->setDstPort(dstPuerto);
         paquete->encapsulate((cPacket*) msg);
 
-        itr=new InterTransporteRed(nombre);
+        itr = new InterTransporteRed(nombre);
         itr->encapsulate(paquete);
         itr->setOrigen(0);
         itr->setDestino(0);
+        itr->setPacketType(packet_request);
         send(itr, "down_layer$o");
 
     } else if (msg->arrivedOn("down_layer$i")) {
 
-        itr=check_and_cast<InterTransporteRed *>(msg);
+        itr = check_and_cast<InterTransporteRed *>(msg);
         paquete = check_and_cast<Transporte *>(itr->decapsulate());
-        char* nombre = (char*) paquete->getName();
 
-        if ((strncmp(nombre, "NACK", 4) == 0 || strncmp(nombre, "ACK", 3) == 0)
-                && !paquete->hasBitError() && paquete->getDstPort() == puerto) {
+        if (!paquete->hasBitError() && paquete->getDstPort() == puerto) {
 
-            if (paquete->getAck() != -1 && paquete->getName())
-                EV << "PAQUETE " << paquete->getName() << " RECIBIDO CON "
-                          << (paquete->getAck() == 0 ? "NACK" : "ACK") << "\n";
-            else {
+            if (itr->getPacketType() == packet_send) {
                 EV << "PAQUETE " << paquete->getName()
-                          << " RECIBIDO NO ES UN ACK\n";
-            }
+                          << " El FINISH TIME ES  "
+                          << paquete->getTxFinish() << "\n";
+            } else if (itr->getPacketType() == packet_response) { //RESPUESTA
+                if (paquete->getAck() != -1 && paquete->getName())
+                    EV << "PAQUETE " << paquete->getName() << " RECIBIDO CON "
+                              << (paquete->getAck() == 0 ? "NACK" : "ACK")
+                              << "\n";
+                else {
+                    EV << "PAQUETE " << paquete->getName()
+                              << " RECIBIDO NO ES UN ACK\n";
+                }
+            } else
+                EV << "PAQUETE DE TIPO DESCONOCIDO\n";
         }
+
         delete (paquete);
         delete (itr);
     } else {

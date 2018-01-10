@@ -60,7 +60,7 @@ void Router::initialize() {
             down_gates[i].output = true;
             if (gate("down_layer$o", i)->findTransmissionChannel() != nullptr) {
                 down_gates[i].txChannel =
-                        gate("down_layer$o", i)->findTransmissionChannel();
+                        (Canal *) gate("down_layer$o", i)->findTransmissionChannel();
                 down_gates[i].txQueue = new cQueue();
                 down_gates[i].enviado = new PaqueteEnviado();
                 down_gates[i].enviado->setGateId(i);
@@ -110,7 +110,14 @@ void Router::handleMessage(cMessage* msg) {
 
         red = (Red*) selected_gate->txQueue->pop();
 
+        Red* redArriba = red->dup();
         send(red, "down_layer$o", eventoEnviar->getGateId());
+
+        EV << "EL DELAY ES " << selected_gate->txChannel->getDelay() << "\n";
+        notify_sent(redArriba,
+                selected_gate->txChannel->getTransmissionFinishTime(),
+                selected_gate->txChannel->getDelay(),
+                selected_gate->txChannel->getDatarate());
 
         if (!selected_gate->txQueue->isEmpty())
             scheduleAt(selected_gate->txChannel->getTransmissionFinishTime(),
@@ -123,8 +130,12 @@ void Router::handleMessage(cMessage* msg) {
 
         unsigned int origen;
 
-        if (((origen = itr->getOrigen()) == 0 && itr->getDestino() == 0
-                && destino != 0) || (origen != 0 && itr->getDestino() != 0)) {
+        if ((itr->getPacketType() == packet_request
+                || itr->getPacketType() == packet_response)
+                && (((origen = itr->getOrigen()) == 0 && itr->getDestino() == 0
+                        && destino != 0)
+                        || (origen != 0 && itr->getDestino() != 0))) {
+
             char nombre[20];
             sprintf(nombre, (origen == 0 ? "RedReq-%d" : "RedRes-%d"),
                     transporte->getSecuencia());
@@ -143,10 +154,20 @@ void Router::handleMessage(cMessage* msg) {
             red->setBitLength(header_tam);
             red->encapsulate(transporte);
 
+            Red* redArriba = red->dup();
+
             if (direccion != destino) {
-                rutar(red);
+                bool send_time = rutar(red);
+
+                if (send_time == true) {
+                    notify_sent(redArriba, simTime(), 0, 0);
+                } else {
+                    delete (redArriba);
+                }
             } else { //Cosa un poco raro, pero contemplado
+                EV << "ME VIENE DE ARRIBA y MANDO PARA ARRIBA\n";
                 send_up(red);
+                notify_sent(redArriba, simTime(), 0, 0);
             }
         } else {
             EV
@@ -184,9 +205,10 @@ void Router::handleMessage(cMessage* msg) {
     }
 }
 
-void Router::rutar(Red* red) {
+bool Router::rutar(Red* red) {
 
     simtime_t time;
+    bool send_now = false;
     gates* selected_gate;
     double irand, crand;
     unsigned int dest = red->getDstAddr();
@@ -209,12 +231,14 @@ void Router::rutar(Red* red) {
 
                             scheduleAt(time, selected_gate->enviado);
                         }
-                    } else
+                    } else {
                         //El enlace esta enchufado directo sin canal ninguno
                         send(red, "down_layer$o", routes[i].gates[0].gate);
+                        send_now = true;
+                    }
                 } else
                     delete (red);
-                return;
+                return send_now;
             } else {
                 irand = uniform(0, 1);
                 crand = 0;
@@ -236,13 +260,15 @@ void Router::rutar(Red* red) {
 
                                     scheduleAt(time, selected_gate->enviado);
                                 }
-                            } else
+                            } else {
                                 //El enlace esta enchufado directo sin canal ninguno
                                 send(red, "down_layer$o",
                                         routes[i].gates[j].gate);
+                                send_now = true;
+                            }
                         } else
                             delete (red);
-                        return;
+                        return send_now;
                     }
                 }
             }
@@ -250,6 +276,7 @@ void Router::rutar(Red* red) {
     }
 
     delete (red);
+    return send_now;
 }
 
 void Router::send_up(Red* red) {
@@ -266,11 +293,35 @@ void Router::send_up(Red* red) {
         InterTransporteRed* itr = new InterTransporteRed(transporte->getName());
         itr->setOrigen(red->getSrcAddr());
         itr->setDestino(red->getDstAddr());
+        if (transporte->getAck() == -1)
+            itr->setPacketType(packet_request);
+        else if (transporte->getAck() == 0 || transporte->getAck() == 1)
+            itr->setPacketType(packet_response);
         itr->encapsulate(transporte);
 
         send(itr, "up_layer$o", puerto);
     }
     delete (red);
+}
+
+void Router::notify_sent(Red* red, simtime_t finishTime, simtime_t delay, double datarate) {
+    Transporte * transporte = (Transporte *) red->decapsulate();
+    int puerto = transporte->getSrcPort();
+
+    transporte->setSrcPort(transporte->getDstPort());
+    transporte->setDstPort(puerto);
+    transporte->setTxFinish(finishTime);
+
+    InterTransporteRed* itr = new InterTransporteRed(transporte->getName());
+    itr->setPacketType(packet_send);
+    itr->setDelay(delay);
+    itr->setDatarate(datarate);
+    itr->encapsulate(transporte);
+
+    send(itr, "up_layer$o", puerto);
+
+    delete (red);
+
 }
 
 int Router::config(cXMLElement *xml) {

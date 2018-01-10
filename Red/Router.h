@@ -21,6 +21,7 @@
 #include "Paquetes/Red_m.h"
 #include "Paquetes/PaqueteEnviado_m.h"
 #include "Paquetes/General.h"
+#include "Enlace/Canal.h"
 
 using namespace omnetpp;
 
@@ -45,7 +46,7 @@ private:
     struct gates {
         bool input;
         bool output;
-        cChannel *txChannel;
+        Canal *txChannel;
         cQueue* txQueue;
         PaqueteEnviado* enviado;
     };
@@ -69,8 +70,9 @@ protected:
     void initializeGate(gates* gateInit);
     void handleMessage(cMessage* msg);
     int config(cXMLElement *xml);
-    void rutar(Red* red);
+    bool rutar(Red* red);
     void send_up(Red* red);
+    void notify_sent(Red* red, simtime_t finishTime, simtime_t delay, double datarate);
 public:
     Router();
     virtual ~Router();
