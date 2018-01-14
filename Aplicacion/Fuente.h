@@ -22,7 +22,6 @@ using namespace omnetpp;
 
 class Fuente: public cSimpleModule {
 private:
-    simtime_t lamda;
     simtime_t startTime;
     int       id;
     cMessage* nuevoEvento;

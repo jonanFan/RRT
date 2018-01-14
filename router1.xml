@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE routes SYSTEM "Red/Route.dtd" > 
+
+<routes>
+	<route start="2" stop="5">
+		<gateway id="0" prob="0.25"/>
+		<gateway id="1" prob="0.75"/>
+	</route>
+</routes>

@@ -20,23 +20,27 @@
 #include "Paquetes/Transporte_m.h"
 #include "Paquetes/General.h"
 
-
 using namespace omnetpp;
 
 class ReceptorTransporte: public cSimpleModule {
 private:
-    int          puerto;
-    int       lenAck;
+    int puerto;
+    int lenAck;
+    bool answerAck;
+
+    /*Statistics*/
+    cLongHistogram paqueteTimeStat;
+    cOutVector paqueteTimeVector;
 protected:
     virtual void handleMessage(cMessage* msg) override;
     virtual void initialize() override;
     Transporte* generarRespuesta(Transporte* peticion);
+    void refreshDisplay() const override;
 public:
     ReceptorTransporte();
     virtual ~ReceptorTransporte();
 };
 
 Define_Module(ReceptorTransporte);
-
 
 #endif /* ReceptorTransporte_H_ */

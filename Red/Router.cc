@@ -110,14 +110,21 @@ void Router::handleMessage(cMessage* msg) {
 
         red = (Red*) selected_gate->txQueue->pop();
 
+        /*Transporte* transporte=(Transporte *)red->decapsulate();
+        transporte->setTimestamp(simTime());
+        red->encapsulate(transporte);
+        EV << "SIMTIME " << simTime() << "\n";*/
         Red* redArriba = red->dup();
         send(red, "down_layer$o", eventoEnviar->getGateId());
 
-        EV << "EL DELAY ES " << selected_gate->txChannel->getDelay() << "\n";
-        notify_sent(redArriba,
-                selected_gate->txChannel->getTransmissionFinishTime(),
-                selected_gate->txChannel->getDelay(),
-                selected_gate->txChannel->getDatarate());
+        if (red->getSrcAddr() == direccion) { //Soy la fuente
+            //EV << "EL DELAY ES " << selected_gate->txChannel->getDelay() << "\n";
+            notify_sent(redArriba,
+                    selected_gate->txChannel->getTransmissionFinishTime(),
+                    selected_gate->txChannel->getDelay(),
+                    selected_gate->txChannel->getDatarate());
+        } else
+            delete(redArriba);
 
         if (!selected_gate->txQueue->isEmpty())
             scheduleAt(selected_gate->txChannel->getTransmissionFinishTime(),
@@ -304,7 +311,8 @@ void Router::send_up(Red* red) {
     delete (red);
 }
 
-void Router::notify_sent(Red* red, simtime_t finishTime, simtime_t delay, double datarate) {
+void Router::notify_sent(Red* red, simtime_t finishTime, simtime_t delay,
+        double datarate) {
     Transporte * transporte = (Transporte *) red->decapsulate();
     int puerto = transporte->getSrcPort();
 
@@ -405,7 +413,7 @@ int Router::config(cXMLElement *xml) {
             if (gate_tmp->getAttribute("prob") != NULL) {
                 routes[i].gates[ig].prob = atof(gate_tmp->getAttribute("prob"));
                 if (routes[i].gates[ig].prob > 1
-                        || routes[i].gates[ig].prob <= 0) {
+                        || routes[i].gates[ig].prob < 0) {
                     EV
                               << "Probabilidad erronea, deberia ser un valor entre 0 y 1\n";
                     return -1;

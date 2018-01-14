@@ -77,15 +77,21 @@ void TransmisorDummy::handleMessage(cMessage* msg) {
         if (!paquete->hasBitError() && paquete->getDstPort() == puerto) {
 
             if (itr->getPacketType() == packet_send) {
-                EV << "PAQUETE " << paquete->getName()
-                          << " El FINISH TIME ES  "
+                EV << "PAQUETE " << paquete->getName() << " El FINISH TIME ES  "
                           << paquete->getTxFinish() << "\n";
             } else if (itr->getPacketType() == packet_response) { //RESPUESTA
-                if (paquete->getAck() != -1 && paquete->getName())
+                if (paquete->getAck() != -1 && paquete->getName()) {
                     EV << "PAQUETE " << paquete->getName() << " RECIBIDO CON "
                               << (paquete->getAck() == 0 ? "NACK" : "ACK")
                               << "\n";
-                else {
+
+                    if (paquete->getAck() == 1) {
+                        simtime_t time = simTime() - paquete->getTimestamp();
+                        paqueteTimeVector.record(time);
+                        paqueteTimeStat.collect(time);
+                        EV << "Time guardado es " << time << "\n";
+                    }
+                } else {
                     EV << "PAQUETE " << paquete->getName()
                               << " RECIBIDO NO ES UN ACK\n";
                 }
@@ -98,4 +104,12 @@ void TransmisorDummy::handleMessage(cMessage* msg) {
     } else {
         delete (msg);
     }
+}
+
+void TransmisorDummy::refreshDisplay() const {
+    char buf[40];
+
+    sprintf(buf, "Mean: %.2lf ms", paqueteTimeStat.getMean());
+
+    getDisplayString().setTagArg("t", 0, buf);
 }

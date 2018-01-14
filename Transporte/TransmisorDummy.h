@@ -28,9 +28,14 @@ private:
     unsigned int dstPuerto;
     unsigned int secuencia;
     unsigned int header_tam;
+
+    /*Statistics*/
+    cLongHistogram paqueteTimeStat;
+    cOutVector paqueteTimeVector;
 protected:
     void initialize();
     void handleMessage(cMessage* msg);
+    void refreshDisplay() const;
 public:
     TransmisorDummy();
     virtual ~TransmisorDummy();

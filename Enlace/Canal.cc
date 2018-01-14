@@ -17,7 +17,7 @@
 
 #include "Canal.h"
 
-Register_Class (Canal);
+Register_Class(Canal);
 
 Canal::Canal(const char *name) :
         cDatarateChannel(name) {
@@ -37,18 +37,32 @@ Canal::~Canal() {
 //}
 
 void Canal::initialize() {
+    packetLost = 0;
+    packetTotal = 0;
     cDatarateChannel::initialize();
     packetLoss = par("packetLoss");
 }
 
 void Canal::processMessage(cMessage *msg, simtime_t t, result_t& result) {
     if (uniform(0, 1) >= packetLoss) {
-       cDatarateChannel::processMessage(msg, t, result);
-    }
-    else
-    {
+        cDatarateChannel::processMessage(msg, t, result);
+    } else {
+        packetLost++;
         EV << "Paquete " << msg->getName() << " perdido\n";
-        result.discard=true;
+        result.discard = true;
     }
+
+    packetTotal++;
+}
+
+void Canal::refreshDisplay() const {
+    char buf[40];
+
+    if (packetTotal == 0)
+        sprintf(buf, "Loss: 0%%", packetLost / packetTotal * 100);
+    else
+        sprintf(buf, "Loss: %.2lf %%", packetLost / packetTotal * 100);
+
+    getDisplayString().setTagArg("t", 0, buf);
 }
 

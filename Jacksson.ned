@@ -16,65 +16,143 @@
 network Jacksson
 {
     parameters:
-        **.lenACK = 1;
-        **.transporteHeaderTam=10;
-        **.redHeaderTam=10;
+        **.lenACK = 1bit;
+        **.transporteHeaderTam = 0bit;
+        **.redHeaderTam = 0bit;
+        **.TTL = 10;
 
-        @display("bgb=531.495,484.41376");
+        **.lambda = uniform(0.4s, 0.6s);
+        **.startTime = 1s;
+        **.tamPaquete = 10bit;
+        **.answerAck=false;
+
+
+        @display("bgb=1250.1125,543.04254");
 
     types:
         channel C extends Canal
         {
-            datarate = 1bps;
-            per = 0.2;
-            delay = 100s;
-            packetLoss = 0.5;
+            datarate = 20bps;
+            per = 0;
+            delay = 1s;
+            packetLoss = 0;
         }
 
     submodules:
-        Fuente: Fuente {
-            @display("p=116.13375,134.96625");
-            lambda = 1000;
-            startTime = 20;
-            tamPaquete = 1024;
-        }
-        Receptor: Receptor {
-            @display("p=392.34375,134.96625");
+        Fuente1: Fuente {
+            @display("p=91,239");
+            //lambda = exponential(1000);
+            //startTime = 20s;
+            //tamPaquete = exponential(1024);
         }
 
-        TransmisorDummy: TransmisorDummy {
-            @display("p=116.13375,218.66624");
+        Fuente2: Fuente {
+            @display("p=347.165,122.622505");
+        }
+
+        Fuente5: Fuente {
+            @display("p=90.77251,422.0125");
+        }
+
+        Receptor3: Receptor {
+            @display("p=1112,239");
+        }
+
+        Receptor4: Receptor {
+            @display("p=1111.5651,422.0125");
+        }
+
+        Transmisor1: TransmisorDummy {
+            @display("p=211,239");
             puerto = 0;
             dstPuerto = 0;
         }
 
-        ReceptorTransporte: ReceptorTransporte {
-            @display("p=392.34375,218.66624");
+        Transmisor2: TransmisorDummy {
+            @display("p=547.82,122.622505");
+            puerto = 0;
+            dstPuerto = 0;
+        }
+
+        Transmisor5: TransmisorDummy {
+            @display("p=272.3175,422.0125");
+            puerto = 0;
+            dstPuerto = 0;
+        }
+
+        ReceptorTransporte3: ReceptorTransporte {
+            @display("p=926,239");
             puerto = 0;
         }
 
-        TransmisorRouter: Router {
-            @display("p=116.13375,303.4125");
+        ReceptorTransporte4: ReceptorTransporte {
+            @display("p=882.24506,422.0125");
+            puerto = 0;
+        }
+
+        Router1: Router {
+            @display("p=348,239");
             direccion = 1;
-            destino = 2;
-            TTL = 10;
-            configuracion = xmldoc("jackson1.xml");
+            destino = 3;
+            configuracion = xmldoc("router1.xml");
 
         }
 
-        ReceptorRouter: Router {
-            @display("p=392.34375,303.4125");
+        Router2: Router {
+            @display("p=549,239");
             direccion = 2;
-            TTL = 10;
-            configuracion = xmldoc("jackson1.xml");
+            destino = 3;
+            configuracion = xmldoc("router2.xml");
         }
+
+        Router3: Router {
+            @display("p=753,239");
+            direccion = 3;
+            configuracion = xmldoc("router3.xml");
+
+        }
+
+        Router4: Router {
+            @display("p=663,423");
+            direccion = 3;
+            configuracion = xmldoc("router4.xml");
+        }
+
+        Router5: Router {
+            @display("p=455,423");
+            direccion = 5;
+            destino = 3;
+            configuracion = xmldoc("router5.xml");
+        }
+
 
     connections:
-        Fuente.down_layer --> TransmisorDummy.up_layer;
-        TransmisorDummy.down_layer <--> TransmisorRouter.up_layer[0];
-        TransmisorRouter.down_layer[0] <--> C <--> ReceptorRouter.down_layer[0];
-        ReceptorRouter.up_layer[0] <--> ReceptorTransporte.down_layer;
-        ReceptorTransporte.up_layer --> Receptor.down_layer;
+        Fuente1.down_layer --> Transmisor1.up_layer;
+        Transmisor1.down_layer <--> Router1.up_layer[0];
+
+        Fuente2.down_layer --> Transmisor2.up_layer;
+        Transmisor2.down_layer <--> Router2.up_layer[0];
+
+        Fuente5.down_layer --> Transmisor5.up_layer;
+        Transmisor5.down_layer <--> Router5.up_layer[0];
+
+        Router1.down_layer[0] <--> C <--> Router2.down_layer[0];
+        Router1.down_layer[1] <--> C <--> Router5.down_layer[0];
+
+        Router2.down_layer[1] <--> C <--> Router5.down_layer[1];
+        Router2.down_layer[2] <--> C <--> Router4.down_layer[1];
+        Router2.down_layer[3] <--> C <--> Router3.down_layer[0];
+
+        Router5.down_layer[2] <--> C <--> Router4.down_layer[0];
+        Router4.down_layer[2] <--> C <--> Router3.down_layer[1];
+
+
+
+        Router3.up_layer[0] <--> ReceptorTransporte3.down_layer;
+        ReceptorTransporte3.up_layer --> Receptor3.down_layer;
+
+        Router4.up_layer[0] <--> ReceptorTransporte4.down_layer;
+        ReceptorTransporte4.up_layer --> Receptor4.down_layer;
 }
 
 

@@ -28,7 +28,6 @@ Fuente::~Fuente() {
 
 void Fuente::initialize() {
     this->startTime = par("startTime");
-    this->lamda = par("lambda");
     scheduleAt(startTime, nuevoEvento);
 }
 
@@ -36,8 +35,10 @@ void Fuente::handleMessage(cMessage* msg) {
 
     simtime_t time;
     send(generarPaquete(), "down_layer");
+    simtime_t lamda = par("lambda");
+    EV << "Lambda es " << lamda << "\n";
     try {
-            scheduleAt(simTime() + exponential(lamda), nuevoEvento);
+            scheduleAt(simTime() + lamda, nuevoEvento);
 
     } catch (cException e) {
         delete (msg);
@@ -50,7 +51,8 @@ cPacket* Fuente::generarPaquete() {
     double tamPkt = par("tamPaquete");
     sprintf(nombre, "App-%d", id++);
     cPacket* msg = new cPacket(nombre, 0);
-    msg->setBitLength(exponential(tamPkt));
+   // msg->setBitLength(exponential(tamPkt));
+    msg->setBitLength(tamPkt);
 
     return msg;
 }

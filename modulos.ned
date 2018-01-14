@@ -1,9 +1,9 @@
 simple Fuente
 {
     parameters:
-        int lambda = default(1000);
-        int startTime = default(20);
-        double tamPaquete = default(1024);
+        double lambda @unit(s) = default(10s);
+        double startTime @unit(s)= default(20s);
+        double tamPaquete @unit(bit)= default(1024bit);
 
         @display("i=block/source");
     gates:
@@ -20,7 +20,8 @@ simple Receptor
 simple ReceptorTransporte
 {
     parameters:
-        int lenACK= default(1);
+        int lenACK @unit(bit)= default(1bit);
+        bool answerAck= default(true);
 		int puerto=default(0);
 		
         @display("i=block/transport");
@@ -32,7 +33,7 @@ simple ReceptorTransporte
 simple TransmisorDummy
 {
     parameters:
-		int transporteHeaderTam= default(10);
+		int transporteHeaderTam @unit(bit)= default(10bit);
 		int puerto=default(0);
 		int dstPuerto=default(0);
 		
@@ -49,7 +50,7 @@ simple Router
         int direccion = default(0);
         int destino = default(0);
         int TTL = default(10);
-        int redHeaderTam = default(0);
+        int redHeaderTam @unit(bit) = default(0bit);
         xml configuracion = default(xmldoc("Red/Router.xml"));
     gates:
         inout up_layer[10] @loose;

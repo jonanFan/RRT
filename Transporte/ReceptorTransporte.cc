@@ -32,6 +32,7 @@ ReceptorTransporte::~ReceptorTransporte() {
 void ReceptorTransporte::initialize() {
     lenAck = par("lenACK");
     puerto = par("puerto");
+    answerAck = par("answerAck");
 
     if (puerto >= max_gates) {
         EV << "Puerto maximo excedido\n";
@@ -41,30 +42,43 @@ void ReceptorTransporte::initialize() {
 
 void ReceptorTransporte::handleMessage(cMessage *msg) {
 
-    InterTransporteRed*  itrPeticion=check_and_cast<InterTransporteRed *>(msg);
-    Transporte* peticion = check_and_cast<Transporte *>(itrPeticion->decapsulate());
+    InterTransporteRed* itrPeticion = check_and_cast<InterTransporteRed *>(msg);
+    Transporte* peticion = check_and_cast<Transporte *>(
+            itrPeticion->decapsulate());
 
     char *nombre = (char*) peticion->getName();
 
-    if (itrPeticion->getPacketType() == packet_request && peticion->getDstPort() == puerto) {
+    if (itrPeticion->getPacketType() == packet_request
+            && peticion->getDstPort() == puerto) {
 
         Transporte* respuesta = generarRespuesta(peticion);
 
-        InterTransporteRed*  itrRespuesta=new InterTransporteRed(respuesta->getName());
+        InterTransporteRed* itrRespuesta = new InterTransporteRed(
+                respuesta->getName());
         itrRespuesta->setOrigen(itrPeticion->getOrigen());
         itrRespuesta->setDestino(itrPeticion->getDestino());
         itrRespuesta->setPacketType(packet_response);
         itrRespuesta->encapsulate(respuesta);
 
         if (respuesta->getAck() == 1) {
+
+           // EV << "SIMTIME PETICION " << peticion->getTimestamp() << "\n";
+            simtime_t time = simTime() - peticion->getTimestamp();
+            paqueteTimeVector.record(time);
+            paqueteTimeStat.collect(time);
+
             send(peticion->decapsulate(), "up_layer");
         }
 
-        send(itrRespuesta, "down_layer$o");
-    } else if(itrPeticion->getPacketType() == packet_send){
+        if (answerAck == true)
+            send(itrRespuesta, "down_layer$o");
+        else {
+            delete (itrRespuesta);
+            //delete (respuesta);
+        }
+    } else if (itrPeticion->getPacketType() == packet_send) {
 
-    }
-    else
+    } else
         EV << "Paquete de tipo desconocido\n";
 
     delete (peticion);
@@ -93,3 +107,12 @@ Transporte* ReceptorTransporte::generarRespuesta(Transporte* peticion) {
 
     return msg;
 }
+
+void ReceptorTransporte::refreshDisplay() const {
+    char buf[40];
+
+    sprintf(buf, "Mean: %.2lf ms", paqueteTimeStat.getMean());
+
+    getDisplayString().setTagArg("t", 0, buf);
+}
+

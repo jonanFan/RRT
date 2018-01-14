@@ -23,17 +23,19 @@
 
 using namespace omnetpp;
 
-class Canal : public cDatarateChannel
-{
-  protected:
+class Canal: public cDatarateChannel {
+protected:
     double packetLoss;
-
-  public:
+    double packetTotal;
+    double packetLost;
+    void refreshDisplay() const override;
+public:
 
     explicit Canal(const char *name = nullptr);
     virtual ~Canal();
     virtual void initialize() override;
-    virtual void processMessage(cMessage *msg, simtime_t t, result_t& result) override;
+    virtual void processMessage(cMessage *msg, simtime_t t, result_t& result)
+            override;
 };
 
 #endif // ifndef __INET_Canal_H
