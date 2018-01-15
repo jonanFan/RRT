@@ -33,6 +33,8 @@ void ReceptorTransporte::initialize() {
     lenAck = par("lenACK");
     puerto = par("puerto");
     answerAck = par("answerAck");
+    packetTotal=0;
+    packetTimeSum=0;
 
     if (puerto >= max_gates) {
         EV << "Puerto maximo excedido\n";
@@ -64,6 +66,8 @@ void ReceptorTransporte::handleMessage(cMessage *msg) {
 
            // EV << "SIMTIME PETICION " << peticion->getTimestamp() << "\n";
             simtime_t time = simTime() - peticion->getTimestamp();
+            EV << "peticion: " << peticion->getTimestamp() - simTime() << "\n";
+            packetTimeSum+=SIMTIME_DBL(time) ;
             paqueteTimeVector.record(time);
             paqueteTimeStat.collect(time);
 
@@ -76,10 +80,13 @@ void ReceptorTransporte::handleMessage(cMessage *msg) {
             delete (itrRespuesta);
             //delete (respuesta);
         }
+
+        packetTotal++;
     } else if (itrPeticion->getPacketType() == packet_send) {
 
     } else
         EV << "Paquete de tipo desconocido\n";
+
 
     delete (peticion);
     delete (itrPeticion);
@@ -111,7 +118,7 @@ Transporte* ReceptorTransporte::generarRespuesta(Transporte* peticion) {
 void ReceptorTransporte::refreshDisplay() const {
     char buf[40];
 
-    sprintf(buf, "Mean: %.2lf ms", paqueteTimeStat.getMean());
+    sprintf(buf, "Mean: %.2lfs. Caudal: %.2lf", packetTimeSum/packetTotal, packetTotal/simTime());
 
     getDisplayString().setTagArg("t", 0, buf);
 }

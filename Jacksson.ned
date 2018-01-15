@@ -16,82 +16,113 @@
 network Jacksson
 {
     parameters:
-        **.lenACK = 1bit;
+        **.lenACK = 0bit;
         **.transporteHeaderTam = 0bit;
         **.redHeaderTam = 0bit;
         **.TTL = 10;
 
-        **.lambda = uniform(0.4s, 0.6s);
-        **.startTime = 1s;
-        **.tamPaquete = 10bit;
-        **.answerAck=false;
+        **.lambda = 0.5s;
+        **.startTime = exponential(0.5s);
+        **.tamPaquete = 1000bit;
+        **.answerAck = false;
+
+        **.datarate = 3000bps;
+        **.per = 0;
+        **.delay=0;
 
 
-        @display("bgb=1250.1125,543.04254");
+        @display("bgb=2009.535,1061.1975");
 
     types:
-        channel C extends Canal
+        channel C1 extends Canal
         {
-            datarate = 20bps;
-            per = 0;
-            delay = 1s;
+            packetLoss = 0;
+        }
+
+        channel C2 extends Canal
+        {
+            packetLoss = 0;
+        }
+
+        channel C3 extends Canal
+        {
+            packetLoss = 0;
+        }
+
+        channel C4 extends Canal
+        {
+            packetLoss = 0;
+        }
+
+        channel C5 extends Canal
+        {
+            packetLoss = 0;
+        }
+
+        channel C6 extends Canal
+        {
+            packetLoss = 0;
+        }
+
+        channel C7 extends Canal
+        {
             packetLoss = 0;
         }
 
     submodules:
         Fuente1: Fuente {
-            @display("p=91,239");
+            @display("p=170.8575,333.8775");
             //lambda = exponential(1000);
             //startTime = 20s;
             //tamPaquete = exponential(1024);
         }
 
         Fuente2: Fuente {
-            @display("p=347.165,122.622505");
+            @display("p=760.2375,128.535");
         }
 
         Fuente5: Fuente {
-            @display("p=90.77251,422.0125");
+            @display("p=194.37,797.8575");
         }
 
         Receptor3: Receptor {
-            @display("p=1112,239");
+            @display("p=1758.735,333.8775");
         }
 
         Receptor4: Receptor {
-            @display("p=1111.5651,422.0125");
+            @display("p=1708.5751,807.2625");
         }
 
         Transmisor1: TransmisorDummy {
-            @display("p=211,239");
+            @display("p=289.9875,333.8775");
             puerto = 0;
             dstPuerto = 0;
         }
 
         Transmisor2: TransmisorDummy {
-            @display("p=547.82,122.622505");
+            @display("p=960.8775,128.535");
             puerto = 0;
             dstPuerto = 0;
         }
 
         Transmisor5: TransmisorDummy {
-            @display("p=272.3175,422.0125");
+            @display("p=376.2,797.8575");
             puerto = 0;
             dstPuerto = 0;
         }
 
         ReceptorTransporte3: ReceptorTransporte {
-            @display("p=926,239");
+            @display("p=1572.2025,333.8775");
             puerto = 0;
         }
 
         ReceptorTransporte4: ReceptorTransporte {
-            @display("p=882.24506,422.0125");
+            @display("p=1478.1525,807.2625");
             puerto = 0;
         }
 
         Router1: Router {
-            @display("p=348,239");
+            @display("p=427.9275,333.8775");
             direccion = 1;
             destino = 3;
             configuracion = xmldoc("router1.xml");
@@ -99,27 +130,27 @@ network Jacksson
         }
 
         Router2: Router {
-            @display("p=549,239");
+            @display("p=854.28754,333.8775");
             direccion = 2;
             destino = 3;
             configuracion = xmldoc("router2.xml");
         }
 
         Router3: Router {
-            @display("p=753,239");
+            @display("p=1399.7775,333.8775");
             direccion = 3;
             configuracion = xmldoc("router3.xml");
 
         }
 
         Router4: Router {
-            @display("p=663,423");
+            @display("p=1258.7025,807.2625");
             direccion = 3;
             configuracion = xmldoc("router4.xml");
         }
 
         Router5: Router {
-            @display("p=455,423");
+            @display("p=559.59753,797.8575");
             direccion = 5;
             destino = 3;
             configuracion = xmldoc("router5.xml");
@@ -136,15 +167,15 @@ network Jacksson
         Fuente5.down_layer --> Transmisor5.up_layer;
         Transmisor5.down_layer <--> Router5.up_layer[0];
 
-        Router1.down_layer[0] <--> C <--> Router2.down_layer[0];
-        Router1.down_layer[1] <--> C <--> Router5.down_layer[0];
+        Router1.down_layer[0] <--> C1 <--> Router2.down_layer[0];
+        Router1.down_layer[1] <--> C2 <--> Router5.down_layer[0];
 
-        Router2.down_layer[1] <--> C <--> Router5.down_layer[1];
-        Router2.down_layer[2] <--> C <--> Router4.down_layer[1];
-        Router2.down_layer[3] <--> C <--> Router3.down_layer[0];
+        Router2.down_layer[1] <--> C3 <--> Router5.down_layer[1];
+        Router2.down_layer[3] <--> C4 <--> Router3.down_layer[0];
+        Router2.down_layer[2] <--> C5 <--> Router4.down_layer[1];
 
-        Router5.down_layer[2] <--> C <--> Router4.down_layer[0];
-        Router4.down_layer[2] <--> C <--> Router3.down_layer[1];
+        Router5.down_layer[2] <--> C6 <--> Router4.down_layer[0];
+        Router4.down_layer[2] <--> C7 <--> Router3.down_layer[1];
 
 
 

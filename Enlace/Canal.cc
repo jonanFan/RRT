@@ -59,9 +59,9 @@ void Canal::refreshDisplay() const {
     char buf[40];
 
     if (packetTotal == 0)
-        sprintf(buf, "Loss: 0%%", packetLost / packetTotal * 100);
+        sprintf(buf, "Loss: 0%%. Caudal: %.2lf", packetLost / packetTotal * 100, packetTotal/simTime());
     else
-        sprintf(buf, "Loss: %.2lf %%", packetLost / packetTotal * 100);
+        sprintf(buf, "Loss: %.2lf %%. Caudal: %.2lf", packetLost / packetTotal * 100, packetTotal/simTime());
 
     getDisplayString().setTagArg("t", 0, buf);
 }

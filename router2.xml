@@ -2,14 +2,15 @@
 <!DOCTYPE routes SYSTEM "Red/Route.dtd" > 
 
 <routes>
-	<route start="1" stop="1">
+	<route start="3" stop="4">
+		<gateway id="3" prob="0.3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333"/>
+		<gateway id="2" prob="0.66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"/>
+	</route>
+</routes>
+
+<!--route start="1" stop="1">
 		<gateway id="0" prob="1"/>
 	</route>
 	<route start="5" stop="5">
 		<gateway id="1" prob="1"/>
-	</route>
-	<route start="3" stop="4">
-		<gateway id="2" prob="0.67"/>
-		<gateway id="3" prob="0.33"/>
-	</route>
-</routes>
+	</route-->

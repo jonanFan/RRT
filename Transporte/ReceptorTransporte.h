@@ -27,6 +27,8 @@ private:
     int puerto;
     int lenAck;
     bool answerAck;
+    double packetTotal;
+    double packetTimeSum;
 
     /*Statistics*/
     cLongHistogram paqueteTimeStat;

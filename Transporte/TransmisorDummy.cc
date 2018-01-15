@@ -67,6 +67,7 @@ void TransmisorDummy::handleMessage(cMessage* msg) {
         itr->setOrigen(0);
         itr->setDestino(0);
         itr->setPacketType(packet_request);
+        itr->setBitLength(0);
         send(itr, "down_layer$o");
 
     } else if (msg->arrivedOn("down_layer$i")) {

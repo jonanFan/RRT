@@ -36,7 +36,7 @@ void Fuente::handleMessage(cMessage* msg) {
     simtime_t time;
     send(generarPaquete(), "down_layer");
     simtime_t lamda = par("lambda");
-    EV << "Lambda es " << lamda << "\n";
+    //EV << "Lambda es " << lamda << "\n";
     try {
             scheduleAt(simTime() + lamda, nuevoEvento);
 

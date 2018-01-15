@@ -117,7 +117,7 @@ void Router::handleMessage(cMessage* msg) {
         Red* redArriba = red->dup();
         send(red, "down_layer$o", eventoEnviar->getGateId());
 
-        if (red->getSrcAddr() == direccion) { //Soy la fuente
+        if (redArriba->getSrcAddr() == direccion) { //Soy la fuente
             //EV << "EL DELAY ES " << selected_gate->txChannel->getDelay() << "\n";
             notify_sent(redArriba,
                     selected_gate->txChannel->getTransmissionFinishTime(),
@@ -300,6 +300,7 @@ void Router::send_up(Red* red) {
         InterTransporteRed* itr = new InterTransporteRed(transporte->getName());
         itr->setOrigen(red->getSrcAddr());
         itr->setDestino(red->getDstAddr());
+        itr->setBitLength(0);
         if (transporte->getAck() == -1)
             itr->setPacketType(packet_request);
         else if (transporte->getAck() == 0 || transporte->getAck() == 1)
@@ -324,6 +325,7 @@ void Router::notify_sent(Red* red, simtime_t finishTime, simtime_t delay,
     itr->setPacketType(packet_send);
     itr->setDelay(delay);
     itr->setDatarate(datarate);
+    itr->setBitError(0);
     itr->encapsulate(transporte);
 
     send(itr, "up_layer$o", puerto);

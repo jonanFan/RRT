@@ -2,12 +2,12 @@
 <!DOCTYPE routes SYSTEM "Red/Route.dtd" > 
 
 <routes>
-	<route start="2" stop="2">
+	<!--route start="2" stop="2">
 		<gateway id="1" prob="1"/>
 	</route>
 	<route start="1" stop="1">
 		<gateway id="0" prob="1"/>
-	</route>
+	</route-->
 	<route start="3" stop="4">
 		<gateway id="1" prob="0.5"/>
 		<gateway id="2" prob="0.5"/>
